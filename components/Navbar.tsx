@@ -191,53 +191,61 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
         </div>
 
         {/* Mobile Navigation Bar (Bottom) */}
-        <div className="fixed bottom-0 left-0 right-0 bg-dark-card/90 backdrop-blur-md border-t border-dark-border md:hidden safe-area-bottom z-50">
-          <div className="grid grid-cols-5 h-16">
+        <div className="fixed bottom-0 left-0 right-0 bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/5 md:hidden safe-area-bottom z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+          <div className="grid grid-cols-5 h-[60px] items-center">
             <button
               onClick={() => setTab(AppTab.HOME)}
-              className={`flex flex-col items-center justify-center gap-1 ${
-                currentTab === AppTab.HOME ? "text-macoin-500" : "text-slate-500"
+              className={`flex flex-col items-center justify-center gap-1 h-full w-full ${
+                currentTab === AppTab.HOME ? "text-macoin-500" : "text-slate-500 hover:text-slate-400"
               }`}
             >
-              <Home size={20} />
+              <Home size={22} strokeWidth={currentTab === AppTab.HOME ? 2.5 : 2} />
               <span className="text-[10px] font-medium">{t.nav.home}</span>
             </button>
             <button
               onClick={() => setTab(AppTab.MINING)}
-              className={`flex flex-col items-center justify-center gap-1 ${
-                currentTab === AppTab.MINING ? "text-macoin-500" : "text-slate-500"
+              className={`flex flex-col items-center justify-center gap-1 h-full w-full ${
+                currentTab === AppTab.MINING ? "text-macoin-500" : "text-slate-500 hover:text-slate-400"
               }`}
             >
-              <Pickaxe size={20} />
+              <Pickaxe size={22} strokeWidth={currentTab === AppTab.MINING ? 2.5 : 2} />
               <span className="text-[10px] font-medium">{t.nav.mining}</span>
             </button>
             <button
               onClick={() => setTab(AppTab.SWAP)}
-              className={`flex flex-col items-center justify-center gap-1 ${
-                currentTab === AppTab.SWAP ? "text-macoin-500" : "text-slate-500"
-              }`}
+              className="relative group"
             >
-              <div className="bg-primary-gradient p-2.5 rounded-full -mt-6 shadow-lg shadow-purple-500/30 border-4 border-dark-bg">
-                <ArrowLeftRight size={22} className="text-white" />
+              <div className="absolute left-1/2 -translate-x-1/2 -top-6">
+                <div className={`p-3 rounded-full border-4 border-[#0a0a0a] transition-all duration-300 ${
+                   currentTab === AppTab.SWAP 
+                   ? "bg-primary-gradient shadow-[0_0_15px_rgba(139,92,246,0.5)] scale-110" 
+                   : "bg-slate-800 group-hover:bg-slate-700"
+                }`}>
+                  <ArrowLeftRight size={24} className="text-white" />
+                </div>
               </div>
-              <span className="text-[10px] font-medium">Swap</span>
+              <div className={`mt-7 text-center text-[10px] font-medium transition-colors ${
+                currentTab === AppTab.SWAP ? "text-macoin-500" : "text-slate-500"
+              }`}>
+                Swap
+              </div>
             </button>
             <button
               onClick={() => setTab(AppTab.TEAM)}
-              className={`flex flex-col items-center justify-center gap-1 ${
-                currentTab === AppTab.TEAM ? "text-macoin-500" : "text-slate-500"
+              className={`flex flex-col items-center justify-center gap-1 h-full w-full ${
+                currentTab === AppTab.TEAM ? "text-macoin-500" : "text-slate-500 hover:text-slate-400"
               }`}
             >
-              <Users size={20} />
+              <Users size={22} strokeWidth={currentTab === AppTab.TEAM ? 2.5 : 2} />
               <span className="text-[10px] font-medium">{t.nav.team}</span>
             </button>
             <button
               onClick={() => setTab(AppTab.HISTORY)}
-              className={`flex flex-col items-center justify-center gap-1 ${
-                currentTab === AppTab.HISTORY ? "text-macoin-500" : "text-slate-500"
+              className={`flex flex-col items-center justify-center gap-1 h-full w-full ${
+                currentTab === AppTab.HISTORY ? "text-macoin-500" : "text-slate-500 hover:text-slate-400"
               }`}
             >
-              <FileText size={20} />
+              <FileText size={22} strokeWidth={currentTab === AppTab.HISTORY ? 2.5 : 2} />
               <span className="text-[10px] font-medium">{t.nav.history}</span>
             </button>
           </div>

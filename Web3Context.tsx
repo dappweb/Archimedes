@@ -5,6 +5,8 @@ import { useEthersProvider, useEthersSigner } from './wagmi-adapters';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { CONTRACT_ADDRESSES } from './src/config';
 
+console.log("CONTRACT_ADDRESSES in Web3Context:", CONTRACT_ADDRESSES);
+
 // Partial ABIs
 export const USDT_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",

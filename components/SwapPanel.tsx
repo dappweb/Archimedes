@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../LanguageContext';
-import { useWeb3, CONTRACT_ADDRESSES } from '../Web3Context';
+import { useWeb3 } from '../Web3Context';
+import { CONTRACT_ADDRESSES } from '../src/config';
 import { ArrowLeftRight, RotateCw, AlertTriangle } from 'lucide-react';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';

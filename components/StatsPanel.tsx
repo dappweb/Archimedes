@@ -212,7 +212,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
     const timer = setInterval(fetchData, 5000) // Refresh every 5s
     fetchData()
     return () => clearInterval(timer)
-  }, [isConnected, account, mcContract, jbcContract, protocolContract])
+  }, [isConnected, account, usdtContract, arcContract, protocolContract])
 
   const handleBind = async () => {
     if (referrer.trim() && protocolContract) {

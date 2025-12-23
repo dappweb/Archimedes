@@ -31,10 +31,12 @@ const AppContent: React.FC = () => {
   const { t } = useLanguage()
 
   useEffect(() => {
+    console.log("App mounted");
     // Simulate initial loading
     const timer = setTimeout(() => {
+      console.log("Loading finished");
       setLoading(false)
-    }, 1500)
+    }, 100) // Reduced to 100ms for debug
     return () => clearTimeout(timer)
   }, [])
 

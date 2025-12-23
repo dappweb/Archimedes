@@ -162,7 +162,6 @@ const AdminPanel: React.FC = () => {
 
     setLoading(true);
     try {
-        const { CONTRACT_ADDRESSES } = await import('../Web3Context');
         const signer = await provider.getSigner();
 
         if (tokenType === 'USDT' && usdtLiquidityAmount) {

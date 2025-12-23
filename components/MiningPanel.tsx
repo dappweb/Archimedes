@@ -200,7 +200,7 @@ const MiningPanel: React.FC = () => {
       try {
           // 检查 MC 余额
           const amountWei = ethers.parseEther(selectedTicket.amount.toString());
-          const mcBalance = await mcContract.balanceOf(account);
+          const mcBalance = await usdtContract.balanceOf(account);
           
           if (mcBalance < amountWei) {
               toast.error(`${t.mining.insufficientMC} ${t.mining.needsMC} ${selectedTicket.amount} USDT，${t.mining.currentBalance}: ${ethers.formatEther(mcBalance)} USDT`);
