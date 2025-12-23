@@ -223,7 +223,7 @@ export const translations = {
       allUsers: '所有用户'
     },
     footer: {
-      rights: '© 2024 Archimedes Protocol. All rights reserved.',
+      rights: '© 2026 Archimedes Protocol. All rights reserved.',
       audit: 'Code is law. Smart contract audited by SlowMist.'
     }
   },
@@ -449,7 +449,7 @@ export const translations = {
       allUsers: 'All Users'
     },
     footer: {
-      rights: '© 2024 Archimedes Protocol. All rights reserved.',
+      rights: '© 2026 Archimedes Protocol. All rights reserved.',
       audit: 'Code is law. Smart contract audited by SlowMist.'
     }
   },
@@ -585,7 +585,7 @@ export const translations = {
       updateReferrer: '更新綁定關係'
     },
     footer: {
-      rights: '© 2024 Archimedes Protocol. All rights reserved.',
+      rights: '© 2026 Archimedes Protocol. All rights reserved.',
       audit: 'Code is law. Smart contract audited by SlowMist.'
     }
   },
@@ -721,7 +721,7 @@ export const translations = {
       updateReferrer: 'バインド関係更新'
     },
     footer: {
-      rights: '© 2024 Archimedes Protocol. All rights reserved.',
+      rights: '© 2026 Archimedes Protocol. All rights reserved.',
       audit: 'Code is law. Smart contract audited by SlowMist.'
     }
   },
@@ -857,7 +857,7 @@ export const translations = {
       updateReferrer: '바인딩 관계 업데이트'
     },
     footer: {
-      rights: '© 2024 Archimedes Protocol. All rights reserved.',
+      rights: '© 2026 Archimedes Protocol. All rights reserved.',
       audit: 'Code is law. Smart contract audited by SlowMist.'
     }
   },
@@ -993,7 +993,7 @@ export const translations = {
       updateReferrer: 'تحديث المُحيل'
     },
     footer: {
-      rights: '© 2024 Archimedes Protocol. جميع الحقوق محفوظة.',
+      rights: '© 2026 Archimedes Protocol. جميع الحقوق محفوظة.',
       audit: 'الكود هو القانون. تم تدقيق Smart contract بواسطة SlowMist.'
     }
   },
@@ -1129,7 +1129,7 @@ export const translations = {
       updateReferrer: 'Обновить связь'
     },
     footer: {
-      rights: '© 2024 Archimedes Protocol. All rights reserved.',
+      rights: '© 2026 Archimedes Protocol. All rights reserved.',
       audit: 'Code is law. Smart contract audited by SlowMist.'
     }
   },
@@ -1265,7 +1265,7 @@ export const translations = {
       updateReferrer: 'Actualizar Vínculo'
     },
     footer: {
-      rights: '© 2024 Archimedes Protocol. All rights reserved.',
+      rights: '© 2026 Archimedes Protocol. All rights reserved.',
       audit: 'Code is law. Smart contract audited by SlowMist.'
     }
   }

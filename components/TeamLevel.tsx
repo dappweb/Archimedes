@@ -136,54 +136,80 @@ const TeamLevel: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto px-4 -mx-4 sm:mx-0">
-            <table className="w-full text-left min-w-[500px] sm:min-w-0">
+            <table className="w-full text-left min-w-[600px] sm:min-w-0 border-collapse">
                 <thead>
-                    <tr className="bg-dark-card2 border-b border-dark-border">
-                        <th className="p-3 md:p-4 text-slate-400 font-medium font-mono uppercase text-xs md:text-sm">{t.team.colLevel}</th>
-                        <th className="p-3 md:p-4 text-slate-400 font-medium font-mono uppercase text-xs md:text-sm">
-                            <div className="flex items-center gap-1 md:gap-2">
-                                <Users size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">{t.team.colCount}</span>
-                            </div>
-                        </th>
-                        <th className="p-3 md:p-4 text-slate-400 font-medium font-mono uppercase text-xs md:text-sm">
-                            <div className="flex items-center gap-1 md:gap-2">
-                                <Percent size={14} className="md:w-4 md:h-4" /> <span className="hidden sm:inline">{t.team.colReward}</span>
-                            </div>
-                        </th>
-                        <th className="p-3 md:p-4 text-slate-400 font-medium font-mono uppercase text-xs md:text-sm text-right">{t.team.colStatus}</th>
+                    <tr className="bg-dark-card2/50 border-b border-dark-border/50">
+                        <th className="p-4 text-slate-400 font-semibold text-xs uppercase tracking-wider">{t.team.colLevel}</th>
+                        <th className="p-4 text-slate-400 font-semibold text-xs uppercase tracking-wider text-center">{t.team.colCount}</th>
+                        <th className="p-4 text-slate-400 font-semibold text-xs uppercase tracking-wider text-center">{t.team.colReward}</th>
+                        <th className="p-4 text-slate-400 font-semibold text-xs uppercase tracking-wider text-right">{t.team.colStatus}</th>
                     </tr>
                 </thead>
-                <tbody className="divide-y divide-dark-border">
+                <tbody className="divide-y divide-dark-border/30">
                     {TEAM_LEVELS.map((level, index) => {
                         const isCurrent = level.level === userLevelInfo.currentLevel;
+                        // Calculate progress towards next level if not current
+                        const isActive = userLevelInfo.activeDirects >= level.countRequired;
+                        
                         return (
                             <tr 
                                 key={level.level} 
-                                className={`group hover:bg-white/5 transition-colors ${isCurrent ? 'bg-macoin-900/10' : ''}`}
+                                className={`group transition-all duration-300 ${
+                                    isCurrent 
+                                    ? 'bg-macoin-500/10 hover:bg-macoin-500/15' 
+                                    : 'hover:bg-white/5'
+                                }`}
                             >
                                 <td className="p-4">
-                                    <div className={`flex items-center gap-2 font-bold ${isCurrent ? 'text-macoin-400' : 'text-slate-300'}`}>
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                                            index >= 6 ? 'bg-yellow-500/20 text-yellow-500' : 
-                                            isCurrent ? 'bg-macoin-600 text-white' : 'bg-slate-700 text-slate-400'
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110 ${
+                                            index >= 6 ? 'bg-gradient-to-br from-yellow-400/20 to-yellow-600/20 text-yellow-400 border border-yellow-500/30' : 
+                                            isCurrent ? 'bg-gradient-to-br from-macoin-500 to-macoin-700 text-white shadow-macoin-500/30' : 
+                                            'bg-dark-card2 text-slate-500 border border-dark-border'
                                         }`}>
-                                            {index >= 6 ? <Crown size={16} /> : level.level}
+                                            {index >= 6 ? <Crown size={20} weight="fill" /> : <span className="font-bold font-mono">{level.level}</span>}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className={`font-bold ${isCurrent ? 'text-white' : 'text-slate-300'}`}>
+                                                {level.desc || `${t.team.levelReward} ${level.level}`}
+                                            </span>
+                                            {isCurrent && <span className="text-[10px] text-macoin-400 font-medium uppercase tracking-wider">Current Plan</span>}
                                         </div>
                                     </div>
                                 </td>
-                                <td className="p-4 text-slate-400 font-mono">
-                                    {level.countRequired.toLocaleString()}
+                                <td className="p-4 text-center">
+                                    <div className="inline-flex flex-col items-center">
+                                        <span className={`font-mono font-bold text-lg ${isActive ? 'text-green-400' : 'text-slate-500'}`}>
+                                            {level.countRequired}
+                                        </span>
+                                        <span className="text-[10px] text-slate-500 uppercase">Active Users</span>
+                                    </div>
                                 </td>
-                                <td className="p-4">
-                                    <span className="inline-block px-3 py-1 rounded-full bg-blue-900/20 text-blue-400 font-bold border border-blue-500/30">
+                                <td className="p-4 text-center">
+                                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${
+                                        isCurrent 
+                                        ? 'bg-macoin-500 text-white shadow-lg shadow-macoin-500/20' 
+                                        : 'bg-dark-card2 text-slate-400 border border-dark-border'
+                                    }`}>
                                         {level.reward}%
                                     </span>
                                 </td>
                                 <td className="p-4 text-right">
                                     {isCurrent ? (
-                                        <span className="text-macoin-400 text-xs font-bold uppercase tracking-wider border border-macoin-500/50 px-2 py-1 rounded bg-dark-card">{t.team.current}</span>
+                                        <div className="flex items-center justify-end gap-2 text-macoin-400">
+                                            <div className="w-2 h-2 rounded-full bg-macoin-500 animate-pulse"></div>
+                                            <span className="font-bold text-sm uppercase tracking-wider">{t.team.current}</span>
+                                        </div>
+                                    ) : isActive ? (
+                                        <span className="text-green-500 text-xs font-bold uppercase tracking-wider flex items-center justify-end gap-1">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                            Unlocked
+                                        </span>
                                     ) : (
-                                        <span className="text-slate-600 text-xs">—</span>
+                                        <span className="text-slate-600 text-xs font-medium uppercase tracking-wider flex items-center justify-end gap-1">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
+                                            Locked
+                                        </span>
                                     )}
                                 </td>
                             </tr>
