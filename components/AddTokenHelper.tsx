@@ -1,6 +1,7 @@
 import React from 'react';
 import { PlusCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { CONTRACT_ADDRESSES } from '../src/config';
 
 interface TokenConfig {
   address: string;
@@ -9,14 +10,14 @@ interface TokenConfig {
   image?: string;
 }
 
-const MC_TOKEN: TokenConfig = {
-  address: '0x71D6D3A4CbC35b8Cc6e81E46E69D57B36B25Df2f',
-  symbol: 'MC',
+const USDT_TOKEN: TokenConfig = {
+  address: CONTRACT_ADDRESSES.USDT_TOKEN,
+  symbol: 'USDT',
   decimals: 18,
 };
 
-const JBC_TOKEN: TokenConfig = {
-  address: '0xD59e16aaD8CE5D9aa1E8B61a4E4faa3bf2e0B350',
+const ARC_TOKEN: TokenConfig = {
+  address: CONTRACT_ADDRESSES.ARC_TOKEN,
   symbol: 'ARC',
   decimals: 18,
 };
@@ -72,32 +73,32 @@ const AddTokenHelper: React.FC<AddTokenHelperProps> = ({ className = '' }) => {
       </p>
 
       <div className="space-y-3">
-        {/* MC Token */}
+        {/* USDT Token */}
         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
           <div>
-            <div className="font-bold text-slate-900">MC Token</div>
+            <div className="font-bold text-slate-900">USDT Token</div>
             <div className="text-xs text-slate-500 font-mono">
-              {MC_TOKEN.address.slice(0, 6)}...{MC_TOKEN.address.slice(-4)}
+              {USDT_TOKEN.address.slice(0, 6)}...{USDT_TOKEN.address.slice(-4)}
             </div>
           </div>
           <button
-            onClick={() => addTokenToWallet(MC_TOKEN)}
+            onClick={() => addTokenToWallet(USDT_TOKEN)}
             className="px-4 py-2 bg-macoin-500 hover:bg-macoin-600 text-white font-bold rounded-lg transition-colors shadow-md hover:shadow-lg text-sm"
           >
-            添加 MC
+            添加 USDT
           </button>
         </div>
 
-        {/* JBC Token */}
+        {/* ARC Token */}
         <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
           <div>
             <div className="font-bold text-slate-900">ARC Token</div>
             <div className="text-xs text-slate-500 font-mono">
-              {JBC_TOKEN.address.slice(0, 6)}...{JBC_TOKEN.address.slice(-4)}
+              {ARC_TOKEN.address.slice(0, 6)}...{ARC_TOKEN.address.slice(-4)}
             </div>
           </div>
           <button
-            onClick={() => addTokenToWallet(JBC_TOKEN)}
+            onClick={() => addTokenToWallet(ARC_TOKEN)}
             className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg transition-colors shadow-md hover:shadow-lg text-sm"
           >
             添加 ARC
@@ -122,13 +123,13 @@ const AddTokenHelper: React.FC<AddTokenHelperProps> = ({ className = '' }) => {
         <div className="p-3 bg-gradient-to-br from-macoin-50 to-macoin-100 rounded-lg border border-macoin-200">
           <div className="text-xs text-slate-500 mb-1">USDT Token 合约</div>
           <div className="text-xs font-mono text-slate-900 break-all">
-            {MC_TOKEN.address}
+            {USDT_TOKEN.address}
           </div>
         </div>
         <div className="p-3 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
           <div className="text-xs text-slate-500 mb-1">ARC Token 合约</div>
           <div className="text-xs font-mono text-slate-900 break-all">
-            {JBC_TOKEN.address}
+            {ARC_TOKEN.address}
           </div>
         </div>
       </div>

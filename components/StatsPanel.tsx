@@ -17,9 +17,9 @@ interface StatsPanelProps {
 
 const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClick, onWhitepaperClick }) => {
   const { t } = useLanguage()
-  const { mcContract, jbcContract, protocolContract, account, isConnected, provider } = useWeb3()
+  const { usdtContract, arcContract, protocolContract, account, isConnected, provider } = useWeb3()
   const [displayStats, setDisplayStats] = useState<UserStats>(initialStats)
-  const [jbcPrice, setJbcPrice] = useState<string>("1.0")
+  const [arcPrice, setArcPrice] = useState<string>("1.0")
 
   // Bind Referrer State
   const [referrer, setReferrer] = useState("")
@@ -59,15 +59,15 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
 
         const pricePoints: PricePoint[] = []
 
-        // Parse MC->JBC swaps: price = mcAmount / jbcAmount
-        for (const event of mcToJbcEvents) {
+        // Parse USDT->ARC swaps: price = usdtAmount / arcAmount
+        for (const event of usdtToArcEvents) {
           try {
             const block = await provider.getBlock(event.blockNumber)
             if (event.args && block) {
-              const mcAmount = parseFloat(ethers.formatEther(event.args[1]))
-              const jbcAmount = parseFloat(ethers.formatEther(event.args[2]))
-              if (jbcAmount > 0) {
-                const price = mcAmount / jbcAmount
+              const usdtAmount = parseFloat(ethers.formatEther(event.args[1]))
+              const arcAmount = parseFloat(ethers.formatEther(event.args[2]))
+              if (arcAmount > 0) {
+                const price = usdtAmount / arcAmount
                 pricePoints.push({
                   timestamp: block.timestamp,
                   price: price,
@@ -247,65 +247,63 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
-      {/* Hero Section - Gold Theme */}
-      <div className="relative rounded-2xl md:rounded-3xl overflow-hidden min-h-[250px] md:min-h-[300px] flex items-center bg-gradient-to-br from-macoin-300 via-macoin-400 to-macoin-600 border border-macoin-500/50 shadow-2xl">
+      {/* Hero Section - Dark Theme */}
+      <div className="relative rounded-2xl md:rounded-3xl overflow-hidden min-h-[250px] md:min-h-[300px] flex items-center bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900 border border-purple-500/30 shadow-2xl">
         {/* Texture Overlay */}
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-macoin-500/20 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-transparent"></div>
 
         <div className="relative z-10 p-5 sm:p-6 md:p-12 max-w-2xl w-full">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-black/10 text-slate-900 text-[10px] md:text-xs font-bold uppercase tracking-wider mb-3 md:mb-4 border border-black/5 backdrop-blur-sm">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/10 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider mb-3 md:mb-4 border border-white/10 backdrop-blur-sm">
             {t.stats.protocol}
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-extrabold text-slate-900 mb-3 md:mb-4 leading-tight drop-shadow-sm">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-3 md:mb-4 leading-tight drop-shadow-sm">
             {t.stats.title} <br />
-            <span className="text-white drop-shadow-md text-xl sm:text-2xl md:text-3xl lg:text-5xl">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 text-xl sm:text-2xl md:text-3xl lg:text-5xl">
               {t.stats.subtitle}
             </span>
           </h1>
-          <p className="text-slate-900/80 text-sm sm:text-base md:text-lg mb-5 md:mb-8 max-w-lg font-medium">
+          <p className="text-slate-300 text-sm sm:text-base md:text-lg mb-5 md:mb-8 max-w-lg font-medium">
             {t.stats.desc}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
             <button
               onClick={onJoinClick}
-              className="px-5 py-2.5 md:px-6 md:py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg shadow-xl transition-all transform hover:-translate-y-1 text-sm md:text-base"
+              className="px-5 py-2.5 md:px-6 md:py-3 bg-primary-gradient hover:opacity-90 text-white font-bold rounded-lg shadow-xl shadow-purple-900/30 transition-all transform hover:-translate-y-1 text-sm md:text-base"
             >
               {t.stats.join}
             </button>
             <button
               onClick={onWhitepaperClick}
-              className="px-5 py-2.5 md:px-6 md:py-3 bg-white/20 hover:bg-white/30 text-slate-900 border border-white/40 font-bold rounded-lg backdrop-blur-md transition-all text-sm md:text-base"
+              className="px-5 py-2.5 md:px-6 md:py-3 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold rounded-lg backdrop-blur-md transition-all text-sm md:text-base"
             >
               {t.stats.whitepaper}
             </button>
           </div>
         </div>
-        {/* Floating Gold Element - Removed for DeFi Theme */}
-        {/* <div className="hidden lg:block absolute right-20 top-1/2 -translate-y-1/2">...</div> */}
       </div>
 
       {/* Bind Referrer Section (Moved from TeamLevel) */}
-      <div className="glass-panel p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl bg-white border-l-4 border-macoin-500 flex flex-col items-start sm:items-center gap-4 shadow-sm">
+      <div className="glass-panel p-4 sm:p-5 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border-l-4 border-macoin-500 flex flex-col items-start sm:items-center gap-4 shadow-sm">
         <div className="flex items-center gap-3 md:gap-4 w-full sm:w-auto">
-          <div className="bg-macoin-100 p-2 md:p-3 rounded-full text-macoin-600">
+          <div className="bg-macoin-500/20 p-2 md:p-3 rounded-full text-macoin-500">
             <Link size={20} className="md:w-6 md:h-6" />
           </div>
           <div>
-            <h3 className="font-bold text-sm md:text-base text-slate-900">{t.team.bindTitle}</h3>
-            <p className="text-xs md:text-sm text-slate-500">{t.team.bindDesc}</p>
+            <h3 className="font-bold text-sm md:text-base text-white">{t.team.bindTitle}</h3>
+            <p className="text-xs md:text-sm text-slate-400">{t.team.bindDesc}</p>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
           {!isConnected ? (
             <button
               disabled
-              className="px-4 py-2.5 md:px-6 md:py-3 bg-slate-200 text-slate-400 font-bold rounded-lg cursor-not-allowed whitespace-nowrap text-sm md:text-base w-full sm:w-auto"
+              className="px-4 py-2.5 md:px-6 md:py-3 bg-dark-card2 text-slate-500 font-bold rounded-lg cursor-not-allowed whitespace-nowrap text-sm md:text-base w-full sm:w-auto border border-dark-border"
             >
               Connect Wallet First
             </button>
           ) : isBound ? (
-            <div className="px-4 py-2.5 md:px-6 md:py-3 bg-green-100 text-green-700 font-bold rounded-lg border border-green-200 flex items-center gap-2 text-sm md:text-base justify-center sm:justify-start">
+            <div className="px-4 py-2.5 md:px-6 md:py-3 bg-green-900/30 text-green-400 font-bold rounded-lg border border-green-900/50 flex items-center gap-2 text-sm md:text-base justify-center sm:justify-start">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               {t.team.bindSuccess}
             </div>
@@ -316,7 +314,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
                 value={referrer}
                 onChange={(e) => setReferrer(e.target.value)}
                 placeholder={t.team.bindPlaceholder}
-                className="w-full sm:w-48 md:w-64 px-3 py-2.5 md:px-4 md:py-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-macoin-500 text-slate-900 text-sm md:text-base"
+                className="w-full sm:w-48 md:w-64 px-3 py-2.5 md:px-4 md:py-3 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-macoin-500 text-white text-sm md:text-base"
               />
               <button
                 onClick={handleBind}
@@ -333,69 +331,66 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {/* Stat 1 */}
-        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-white">
+        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border">
           <div className="flex items-center justify-between mb-3 md:mb-4">
-            <span className="text-slate-500 text-xs md:text-sm">{t.stats.assets}</span>
-            <Wallet className="text-macoin-600" size={18} />
+            <span className="text-slate-400 text-xs md:text-sm">{t.stats.assets}</span>
+            <Wallet className="text-macoin-500" size={18} />
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-slate-900 mb-1">
+          <div className="text-2xl md:text-3xl font-bold text-white mb-1">
             {displayStats.balanceUSDT.toLocaleString()}
           </div>
-          {/* <div className="text-xs text-macoin-600 flex items-center gap-1">
-                <ArrowUpRight size={12} /> +2.4% {t.stats.today}
-            </div> */}
         </div>
 
         {/* Stat 2 */}
-        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-white">
+        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border">
           <div className="flex items-center justify-between mb-3 md:mb-4">
-            <span className="text-slate-500 text-xs md:text-sm">{t.stats.holding}</span>
+            <span className="text-slate-400 text-xs md:text-sm">{t.stats.holding}</span>
             <Coins className="text-macoin-500" size={18} />
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-slate-900 mb-1">
-            {displayStats.balanceJBC.toLocaleString()}
+          <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+            {displayStats.balanceARC.toLocaleString()}
           </div>
-          <div className="text-xs text-macoin-600 flex items-center gap-1">
-            ≈ {(displayStats.balanceJBC * parseFloat(jbcPrice)).toFixed(2)} USDT
-            <span className="text-slate-400 ml-1">(Price: {parseFloat(jbcPrice).toFixed(4)})</span>
+          <div className="text-xs text-macoin-500 flex items-center gap-1">
+            ≈ {(displayStats.balanceARC * parseFloat(arcPrice)).toFixed(2)} USDT
+            <span className="text-slate-500 ml-1">(Price: {parseFloat(arcPrice).toFixed(4)})</span>
           </div>
         </div>
 
         {/* Stat 3 */}
-        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-white">
+        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border">
           <div className="flex items-center justify-between mb-3 md:mb-4">
-            <span className="text-slate-500 text-xs md:text-sm">{t.stats.revenue}</span>
+            <span className="text-slate-400 text-xs md:text-sm">{t.stats.revenue}</span>
             <TrendingUp className="text-blue-500" size={18} />
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-slate-900 mb-1">
+          <div className="text-2xl md:text-3xl font-bold text-white mb-1">
             {displayStats.totalRevenue.toLocaleString()}
           </div>
-          <div className="text-xs text-slate-400">{t.stats.settlement}</div>
+          <div className="text-xs text-slate-500">{t.stats.settlement}</div>
         </div>
 
         {/* Stat 4 */}
-        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-gradient-to-br from-slate-50 to-white">
+        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border">
           <div className="flex items-center justify-between mb-3 md:mb-4">
-            <span className="text-slate-500 text-xs md:text-sm">{t.stats.level}</span>
+            <span className="text-slate-400 text-xs md:text-sm">{t.stats.level}</span>
             <Users className="text-purple-500" size={18} />
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-1">
+          <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-1">
             {displayStats.currentLevel}
           </div>
-          <div className="text-xs text-slate-400">
+          <div className="text-xs text-slate-500">
             {t.stats.teamCount}: {displayStats.teamCount}
           </div>
         </div>
       </div>
 
       {/* Chart Section */}
-      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-white">
-        <h3 className="text-base md:text-lg font-bold mb-4 md:mb-6 text-slate-900 border-l-4 border-macoin-500 pl-3 flex justify-between items-center">
+      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border">
+        <h3 className="text-base md:text-lg font-bold mb-4 md:mb-6 text-white border-l-4 border-macoin-500 pl-3 flex justify-between items-center">
           {t.stats.chartTitle}
           {fetchError && (
             <button 
               onClick={() => window.location.reload()} 
-              className="text-xs text-red-500 hover:text-red-700 underline"
+              className="text-xs text-red-500 hover:text-red-400 underline"
             >
               Load Failed (Retry)
             </button>
@@ -405,7 +400,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
           <div className="h-[200px] sm:h-[250px] md:h-[300px] w-full flex items-center justify-center">
             <div className="text-center">
               <div className="w-8 h-8 border-4 border-macoin-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-sm text-slate-500">Loading price history...</p>
+              <p className="text-sm text-slate-400">Loading price history...</p>
             </div>
           </div>
         ) : (
@@ -414,27 +409,27 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
               <AreaChart data={priceHistory}>
                 <defs>
                   <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00dc82" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#00dc82" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                <XAxis dataKey="name" stroke="#64748b" />
+                <YAxis stroke="#64748b" />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#fff",
-                    borderColor: "#e2e8f0",
-                    color: "#0f172a",
+                    backgroundColor: "#1e1e2e",
+                    borderColor: "#333",
+                    color: "#fff",
                     borderRadius: "8px",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.5)",
                   }}
-                  itemStyle={{ color: "#16a34a" }}
+                  itemStyle={{ color: "#a78bfa" }}
                 />
                 <Area
                   type="monotone"
                   dataKey="uv"
-                  stroke="#00dc82"
+                  stroke="#8b5cf6"
                   strokeWidth={3}
                   fillOpacity={1}
                   fill="url(#colorUv)"

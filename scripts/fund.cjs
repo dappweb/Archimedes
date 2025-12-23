@@ -2,48 +2,36 @@ const hre = require("hardhat");
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
-  console.log("Funding protocol with account:", deployer.address);
+  console.log("Funding with account:", deployer.address);
 
-  // Addresses from the previous deployment
-  const MC_ADDRESS = "0xF38EaC9cDB449F52DEFf11707c97Fe7e7b005eBE";
-  const JBC_ADDRESS = "0x4C592F7B83D32b3236EE7Edff8204A92DA274707";
-  const PROTOCOL_ADDRESS = "0x490B6c6Cb9FEC80fD17FBd2D71f095aE01f67Ec0";
+  // Addresses from recent deployment
+  const usdtAddress = "0xdBb003D94597fb8F81e968427568DD975c484A5e";
+  const arcAddress = "0xb30CaeEac83C31A7119d3bbda8320257B3FeF2c0";
+  const protocolAddress = "0x999b12586B7B360B008502f4f0cb83052565798D";
 
-  // Attach to contracts
-  const JBC = await hre.ethers.getContractFactory("JBC");
-  const jbc = JBC.attach(JBC_ADDRESS);
+  const usdt = await hre.ethers.getContractAt("MockUSDT", usdtAddress);
+  const arc = await hre.ethers.getContractAt("ARC", arcAddress);
 
-  const MockMC = await hre.ethers.getContractFactory("MockMC");
-  const mc = MockMC.attach(MC_ADDRESS);
+  // Fund Protocol with ARC (for rewards)
+  // console.log("Transferring ARC...");
+  // const initialARCSupply = hre.ethers.parseEther("1000000"); // 1M ARC
+  // try {
+  //     const tx1 = await arc.transfer(protocolAddress, initialARCSupply);
+  //     await tx1.wait();
+  //     console.log("Transferred 1M ARC to Protocol");
+  // } catch (e) {
+  //     console.log("ARC transfer failed or already done:", e.message);
+  // }
 
-  const fundAmount = hre.ethers.parseEther("1000000");
-
-  // Get current fee data for better gas estimation
-  const feeData = await hre.ethers.provider.getFeeData();
-  
-  // Use slightly higher gas price to ensure it goes through
-  const txOverrides = {
-    // gasPrice: feeData.gasPrice * 120n / 100n, // Increase by 20% if needed, but EIP-1559 uses maxFeePerGas
-  };
-
-  console.log("1. Sending 1,000,000 JBC to Protocol...");
+  // Fund Protocol with USDT (for rewards/withdrawals simulation)
+  console.log("Transferring USDT...");
+  const initialUSDTSupply = hre.ethers.parseEther("1000000"); // 1M USDT
   try {
-      const tx1 = await jbc.transfer(PROTOCOL_ADDRESS, fundAmount);
-      console.log(`   Tx Hash: ${tx1.hash}`);
-      await tx1.wait();
-      console.log("   ✅ JBC Transfer confirmed");
-  } catch (error) {
-      console.error("   ❌ JBC Transfer failed:", error.message);
-  }
-
-  console.log("2. Sending 1,000,000 MC to Protocol...");
-  try {
-      const tx2 = await mc.transfer(PROTOCOL_ADDRESS, fundAmount);
-      console.log(`   Tx Hash: ${tx2.hash}`);
+      const tx2 = await usdt.transfer(protocolAddress, initialUSDTSupply);
       await tx2.wait();
-      console.log("   ✅ MC Transfer confirmed");
-  } catch (error) {
-      console.error("   ❌ MC Transfer failed:", error.message);
+      console.log("Transferred 1M USDT to Protocol");
+  } catch (e) {
+      console.log("USDT transfer failed or already done:", e.message);
   }
 
   console.log("Funding Complete!");

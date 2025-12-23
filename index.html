@@ -14,18 +14,29 @@
           extend: {
             colors: {
               macoin: {
-                50: '#FFFBEB',
-                100: '#FEF3C7',
-                200: '#FDE68A',
-                300: '#FCD34D',
-                400: '#FBBF24',
-                500: '#F59E0B', 
-                600: '#D97706',
-                700: '#B45309',
-                800: '#92400E',
-                900: '#78350F',
-                950: '#451A03',
+                50: '#f5f3ff',
+                100: '#ede9fe',
+                200: '#ddd6fe',
+                300: '#c4b5fd',
+                400: '#a78bfa',
+                500: '#8b5cf6', // Purple
+                600: '#7c3aed',
+                700: '#6d28d9',
+                800: '#5b21b6',
+                900: '#4c1d95',
+                950: '#2e1065',
               },
+              dark: {
+                bg: '#000000',
+                card: '#111111',
+                card2: '#1a1a1a',
+                border: '#333333',
+              }
+            },
+            backgroundImage: {
+              'primary-gradient': 'linear-gradient(to right, #4f46e5, #9333ea)', // Indigo to Purple
+              'gold-gradient': 'linear-gradient(to right, #f59e0b, #fbbf24)', // Amber to Yellow
+              'blue-gradient': 'linear-gradient(to right, #3b82f6, #8b5cf6)', // Blue to Purple
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
@@ -37,16 +48,20 @@
     </script>
     <style>
       body {
-        background-color: #f8fafc; /* Slate 50 */
-        color: #0f172a; /* Slate 900 */
-        font-family: 'Inter', sans-serif; /* Fallback font */
+        background-color: #000000; /* Dark Background */
+        color: #f8fafc; /* Slate 50 Text */
+        font-family: 'Inter', sans-serif;
       }
       .glass-panel {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(20, 20, 30, 0.8);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(226, 232, 240, 1); /* Slate 200 */
-        box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.5);
+      }
+      .neon-border {
+         box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+         border: 1px solid rgba(139, 92, 246, 0.5);
       }
       /* Ensure grid works even if Tailwind fails partially */
       .grid-cols-3 {

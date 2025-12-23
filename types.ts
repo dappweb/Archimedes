@@ -19,7 +19,7 @@ export interface TicketTier {
 
 export interface UserStats {
   balanceUSDT: number;
-  balanceJBC: number;
+  balanceARC: number;
   totalRevenue: number;
   currentLevel: string;
   teamCount: number;

@@ -3,9 +3,10 @@ import { ethers } from 'ethers';
 import { useAccount, useChainId } from 'wagmi';
 import { useEthersProvider, useEthersSigner } from './wagmi-adapters';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { CONTRACT_ADDRESSES } from './src/config';
 
 // Partial ABIs
-export const MC_ABI = [
+export const USDT_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
   "function allowance(address owner, address spender) external view returns (uint256)",
   "function balanceOf(address account) external view returns (uint256)"
@@ -17,43 +18,35 @@ export const PROTOCOL_ABI = [
   "function stakeLiquidity(uint256 cycleDays) external",
   "function claimRewards() external",
   "function redeem() external",
-  "function swapMCToJBC(uint256 mcAmount) external",
-  "function swapJBCToMC(uint256 jbcAmount) external",
+  "function swapUSDTToARC(uint256 usdtAmount) external",
+  "function swapARCToUSDT(uint256 arcAmount) external",
   "function userInfo(address) view returns (address referrer, uint256 activeDirects, uint256 teamCount, uint256 totalRevenue, uint256 currentCap, bool isActive)",
   "function userTicket(address) view returns (uint256 amount, uint256 requiredLiquidity, uint256 purchaseTime, bool liquidityProvided, uint256 liquidityAmount, uint256 startTime, uint256 cycleDays, bool redeemed)",
   "function getDirectReferrals(address) view returns (address[])",
   "function getDirectReferralsData(address) view returns (tuple(address user, uint256 ticketAmount, uint256 joinTime)[])",
   "function owner() view returns (address)",
-  "function setWallets(address, address, address, address) external",
-  "function setDistributionPercents(uint256, uint256, uint256, uint256, uint256, uint256) external",
-  "function setSwapTaxes(uint256, uint256) external",
-  "function setRedemptionFee(uint256) external",
+  "function setWallets(address, address) external",
+  "function setCommunityOffice(address office, bool status) external",
+  "function setWhitelist(address user, bool status) external",
+  "function isWhitelist(address) view returns (bool)",
+  "function isCommunityOffice(address) view returns (bool)",
   "function adminSetUserStats(address, uint256, uint256) external",
   "function adminSetReferrer(address, address) external",
-  "function getJBCPrice() view returns (uint256)",
+  "function getARCPrice() view returns (uint256)",
   "function getAmountOut(uint256, uint256, uint256) pure returns (uint256)",
+  "function desFeeFixed() view returns (uint256)",
+  "function desFeeRate() view returns (uint256)",
   "event BoundReferrer(address indexed user, address indexed referrer)",
   "event TicketPurchased(address indexed user, uint256 amount)",
   "event LiquidityStaked(address indexed user, uint256 amount, uint256 cycleDays)",
-  "event RewardClaimed(address indexed user, uint256 mcAmount, uint256 jbcAmount)",
+  "event RewardClaimed(address indexed user, uint256 usdtAmount, uint256 arcAmount)",
   "event Redeemed(address indexed user, uint256 principal, uint256 fee)",
-  "event SwappedMCToJBC(address indexed user, uint256 mcAmount, uint256 jbcAmount, uint256 tax)",
-  "event SwappedJBCToMC(address indexed user, uint256 jbcAmount, uint256 mcAmount, uint256 tax)"
+  "event SwappedUSDTToARC(address indexed user, uint256 usdtAmount, uint256 arcAmount, uint256 tax)",
+  "event SwappedARCToUSDT(address indexed user, uint256 arcAmount, uint256 usdtAmount, uint256 tax)"
 ];
 
-// Contract Addresses (Mock for now, replace with real deployment)
-export const CONTRACT_ADDRESSES = {
-  MC_TOKEN: "0xB2B8777BcBc7A8DEf49F022773d392a8787cf9EF",
-  JBC_TOKEN: "0xA743cB357a9f59D349efB7985072779a094658dD", // Replace with real JBC Address
-  PROTOCOL: "0x941E18CB27BA8326a1F962D4C1B94360D5A3e29f"
-};
-
-// Contract Addresses - Update these with your deployed contract addresses
-// export const CONTRACT_ADDRESSES = {
-//   MC_TOKEN: "0x33A6FE1Ae840c4dd2dfaC4d5aDFc8AD2a1d87eA5",    // USDT Token (ERC20) - 用于购买 JBC
-//   JBC_TOKEN: "0xB2B8777BcBc7A8DEf49F022773d392a8787cf9EF",   // JBC Token (ERC20) - 项目主代币
-//   PROTOCOL: "0xA743cB357a9f59D349efB7985072779a094658dD"    // Protocol Contract - 主协议合约（包含兑换池）
-// };
+// Contract Addresses (Sepolia Testnet)
+// CONTRACT_ADDRESSES imported from ./src/config
 
 interface Web3ContextType {
   provider: ethers.Provider | null;
@@ -61,8 +54,9 @@ interface Web3ContextType {
   account: string | null;
   connectWallet: () => void;
   isConnected: boolean;
-  mcContract: ethers.Contract | null;
-  jbcContract: ethers.Contract | null;
+  usdtContract: ethers.Contract | null;
+  arcContract: ethers.Contract | null;
+  desContract: ethers.Contract | null;
   protocolContract: ethers.Contract | null;
   hasReferrer: boolean;
   isOwner: boolean;
@@ -79,8 +73,9 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const signer = useEthersSigner({ chainId });
   const { openConnectModal } = useConnectModal();
 
-  const [mcContract, setMcContract] = useState<ethers.Contract | null>(null);
-  const [jbcContract, setJbcContract] = useState<ethers.Contract | null>(null);
+  const [usdtContract, setUsdtContract] = useState<ethers.Contract | null>(null);
+  const [arcContract, setArcContract] = useState<ethers.Contract | null>(null);
+  const [desContract, setDesContract] = useState<ethers.Contract | null>(null);
   const [protocolContract, setProtocolContract] = useState<ethers.Contract | null>(null);
   const [hasReferrer, setHasReferrer] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
@@ -89,23 +84,27 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     if (signer) {
         // Init Contracts with Signer (Write access)
-        const _mc = new ethers.Contract(CONTRACT_ADDRESSES.MC_TOKEN, MC_ABI, signer);
-        const _jbc = new ethers.Contract(CONTRACT_ADDRESSES.JBC_TOKEN, MC_ABI, signer);
+        const _usdt = new ethers.Contract(CONTRACT_ADDRESSES.USDT_TOKEN, USDT_ABI, signer);
+        const _arc = new ethers.Contract(CONTRACT_ADDRESSES.ARC_TOKEN, USDT_ABI, signer);
+        const _des = new ethers.Contract(CONTRACT_ADDRESSES.DES_TOKEN, USDT_ABI, signer);
         const _protocol = new ethers.Contract(CONTRACT_ADDRESSES.PROTOCOL, PROTOCOL_ABI, signer);
-        setMcContract(_mc);
-        setJbcContract(_jbc);
+        setUsdtContract(_usdt);
+        setArcContract(_arc);
+        setDesContract(_des);
         setProtocolContract(_protocol);
     } else if (provider) {
         // Init Contracts with Provider (Read only)
-        const _mc = new ethers.Contract(CONTRACT_ADDRESSES.MC_TOKEN, MC_ABI, provider);
-        const _jbc = new ethers.Contract(CONTRACT_ADDRESSES.JBC_TOKEN, MC_ABI, provider);
+        const _usdt = new ethers.Contract(CONTRACT_ADDRESSES.USDT_TOKEN, USDT_ABI, provider);
+        const _arc = new ethers.Contract(CONTRACT_ADDRESSES.ARC_TOKEN, USDT_ABI, provider);
+        const _des = new ethers.Contract(CONTRACT_ADDRESSES.DES_TOKEN, USDT_ABI, provider);
         const _protocol = new ethers.Contract(CONTRACT_ADDRESSES.PROTOCOL, PROTOCOL_ABI, provider);
-        setMcContract(_mc);
-        setJbcContract(_jbc);
+        setUsdtContract(_usdt);
+        setArcContract(_arc);
+        setDesContract(_des);
         setProtocolContract(_protocol);
     } else {
-        setMcContract(null);
-        setJbcContract(null);
+        setUsdtContract(null);
+        setArcContract(null);
         setProtocolContract(null);
     }
   }, [signer, provider]);
@@ -210,8 +209,9 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
       account: address || null,
       connectWallet,
       isConnected,
-      mcContract,
-      jbcContract,
+      usdtContract,
+      arcContract,
+      desContract,
       protocolContract,
       hasReferrer,
       isOwner,

@@ -7,7 +7,7 @@ import { ethers } from 'ethers';
 interface Transaction {
   hash: string;
   user: string; // Add user address field
-  type: 'ticket_purchased' | 'liquidity_staked' | 'reward_claimed' | 'redeemed' | 'swap_mc_to_jbc' | 'swap_jbc_to_mc';
+  type: 'ticket_purchased' | 'liquidity_staked' | 'reward_claimed' | 'redeemed' | 'swap_usdt_to_arc' | 'swap_arc_to_usdt';
   amount: string;
   amount2?: string; // For rewards (MC + JBC) or swap tax
   blockNumber: number;
@@ -16,7 +16,7 @@ interface Transaction {
 }
 
 const TransactionHistory: React.FC = () => {
-  const { protocolContract, jbcContract, account, provider } = useWeb3();
+  const { protocolContract, arcContract, account, provider } = useWeb3();
   const { t } = useLanguage();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,8 +30,8 @@ const TransactionHistory: React.FC = () => {
     'LiquidityStaked': 'liquidity_staked',
     'RewardClaimed': 'reward_claimed',
     'Redeemed': 'redeemed',
-    'SwappedMCToJBC': 'swap_mc_to_jbc',
-    'SwappedJBCToMC': 'swap_jbc_to_mc'
+    'SwappedUSDTToARC': 'swap_usdt_to_arc',
+    'SwappedARCToUSDT': 'swap_arc_to_usdt'
   };
 
   // Check if current user is owner
@@ -112,17 +112,17 @@ const TransactionHistory: React.FC = () => {
             tx.amount = ethers.formatEther(event.args[1]); // amount
             tx.amount2 = event.args[2].toString(); // cycleDays
           } else if (eventName === 'RewardClaimed' && event.args) {
-            tx.amount = ethers.formatEther(event.args[1]); // mcAmount
-            tx.amount2 = ethers.formatEther(event.args[2]); // jbcAmount
+            tx.amount = ethers.formatEther(event.args[1]); // usdtAmount
+            tx.amount2 = ethers.formatEther(event.args[2]); // arcAmount
           } else if (eventName === 'Redeemed' && event.args) {
             tx.amount = ethers.formatEther(event.args[1]); // principal
             tx.amount2 = ethers.formatEther(event.args[2]); // fee
           } else if (eventName === 'SwappedMCToJBC' && event.args) {
-            tx.amount = ethers.formatEther(event.args[1]); // mcAmount
-            tx.amount2 = ethers.formatEther(event.args[2]); // jbcAmount (received)
+            tx.amount = ethers.formatEther(event.args[1]); // usdtAmount
+            tx.amount2 = ethers.formatEther(event.args[2]); // arcAmount (received)
           } else if (eventName === 'SwappedJBCToMC' && event.args) {
-            tx.amount = ethers.formatEther(event.args[1]); // jbcAmount
-            tx.amount2 = ethers.formatEther(event.args[2]); // mcAmount (received)
+            tx.amount = ethers.formatEther(event.args[1]); // arcAmount
+            tx.amount2 = ethers.formatEther(event.args[2]); // usdtAmount (received)
           }
 
           txs.push(tx);
@@ -149,13 +149,13 @@ const TransactionHistory: React.FC = () => {
 
   const getTypeIcon = (type: Transaction['type']) => {
     switch (type) {
-      case 'ticket_purchased': return <Package className="w-5 h-5 text-blue-500" />;
-      case 'liquidity_staked': return <Lock className="w-5 h-5 text-purple-500" />;
-      case 'reward_claimed': return <Gift className="w-5 h-5 text-green-500" />;
-      case 'redeemed': return <Unlock className="w-5 h-5 text-orange-500" />;
-      case 'swap_mc_to_jbc': return <TrendingUp className="w-5 h-5 text-emerald-500" />;
-      case 'swap_jbc_to_mc': return <TrendingDown className="w-5 h-5 text-red-500" />;
-      default: return <FileText className="w-5 h-5 text-gray-500" />;
+      case 'ticket_purchased': return <Package className="w-5 h-5 text-blue-400" />;
+      case 'liquidity_staked': return <Lock className="w-5 h-5 text-purple-400" />;
+      case 'reward_claimed': return <Gift className="w-5 h-5 text-green-400" />;
+      case 'redeemed': return <Unlock className="w-5 h-5 text-orange-400" />;
+      case 'swap_mc_to_jbc': return <TrendingUp className="w-5 h-5 text-emerald-400" />;
+      case 'swap_jbc_to_mc': return <TrendingDown className="w-5 h-5 text-red-400" />;
+      default: return <FileText className="w-5 h-5 text-slate-400" />;
     }
   };
 
@@ -176,10 +176,10 @@ const TransactionHistory: React.FC = () => {
   if (!account) {
     return (
       <div className="max-w-6xl mx-auto mt-8">
-        <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-          <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-xl font-bold text-gray-700 mb-2">{t.history.connectWallet}</h3>
-          <p className="text-gray-500">{t.history.connectWalletDesc}</p>
+        <div className="bg-dark-card rounded-2xl shadow-lg p-8 text-center border border-dark-border">
+          <FileText className="w-16 h-16 mx-auto text-slate-500 mb-4" />
+          <h3 className="text-xl font-bold text-white mb-2">{t.history.connectWallet}</h3>
+          <p className="text-slate-400">{t.history.connectWalletDesc}</p>
         </div>
       </div>
     );
@@ -188,13 +188,13 @@ const TransactionHistory: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto mt-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-macoin-500 to-macoin-600 rounded-2xl shadow-xl p-6 mb-6">
+      <div className="bg-gradient-to-r from-macoin-600 to-purple-800 rounded-2xl shadow-xl p-6 mb-6 border border-macoin-500/30">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <FileText className="w-8 h-8 text-white" />
             <div>
               <h2 className="text-2xl font-bold text-white">{t.history.title}</h2>
-              <p className="text-macoin-100">{t.history.subtitle}</p>
+              <p className="text-macoin-200">{t.history.subtitle}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -205,7 +205,7 @@ const TransactionHistory: React.FC = () => {
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     viewMode === 'self'
                       ? 'bg-white text-macoin-600'
-                      : 'bg-white/20 text-white hover:bg-white/30'
+                      : 'bg-white/10 text-white hover:bg-white/20'
                   }`}
                 >
                   {t.history.mySelf || '我的记录'}
@@ -215,7 +215,7 @@ const TransactionHistory: React.FC = () => {
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     viewMode === 'all'
                       ? 'bg-white text-macoin-600'
-                      : 'bg-white/20 text-white hover:bg-white/30'
+                      : 'bg-white/10 text-white hover:bg-white/20'
                   }`}
                 >
                   {t.history.allUsers || '所有用户'}
@@ -225,7 +225,7 @@ const TransactionHistory: React.FC = () => {
             <button
               onClick={fetchTransactions}
               disabled={refreshing}
-              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               {t.history.refresh}
@@ -235,15 +235,15 @@ const TransactionHistory: React.FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="bg-white rounded-xl shadow-md p-4 mb-6">
+      <div className="bg-dark-card rounded-xl shadow-md p-4 mb-6 border border-dark-border">
         <div className="flex items-center gap-2 flex-wrap">
-          <Filter className="w-5 h-5 text-gray-500" />
+          <Filter className="w-5 h-5 text-slate-400" />
           <button
             onClick={() => setFilterType('all')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               filterType === 'all'
-                ? 'bg-macoin-500 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-macoin-600 text-white'
+                : 'bg-dark-card2 text-slate-400 hover:bg-slate-700'
             }`}
           >
             {t.history.all}
@@ -254,8 +254,8 @@ const TransactionHistory: React.FC = () => {
               onClick={() => setFilterType(value)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 filterType === value
-                  ? 'bg-macoin-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-macoin-600 text-white'
+                  : 'bg-dark-card2 text-slate-400 hover:bg-slate-700'
               }`}
             >
               {t.history[value]}
@@ -266,22 +266,22 @@ const TransactionHistory: React.FC = () => {
 
       {/* Transactions List */}
       {loading ? (
-        <div className="bg-white rounded-xl shadow-md p-12 text-center">
+        <div className="bg-dark-card rounded-xl shadow-md p-12 text-center border border-dark-border">
           <div className="w-12 h-12 border-4 border-macoin-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-500">{t.history.loading}</p>
+          <p className="text-slate-400">{t.history.loading}</p>
         </div>
       ) : filteredTransactions.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-md p-12 text-center">
-          <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-xl font-bold text-gray-700 mb-2">{t.history.noTransactions}</h3>
-          <p className="text-gray-500">{t.history.noTransactionsDesc}</p>
+        <div className="bg-dark-card rounded-xl shadow-md p-12 text-center border border-dark-border">
+          <FileText className="w-16 h-16 mx-auto text-slate-600 mb-4" />
+          <h3 className="text-xl font-bold text-white mb-2">{t.history.noTransactions}</h3>
+          <p className="text-slate-400">{t.history.noTransactionsDesc}</p>
         </div>
       ) : (
         <div className="space-y-3">
           {filteredTransactions.map((tx, index) => (
             <div
               key={`${tx.hash}-${index}`}
-              className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow p-5"
+              className="bg-dark-card rounded-xl shadow-md hover:shadow-lg transition-shadow p-5 border border-dark-border"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4 flex-1">
@@ -290,17 +290,17 @@ const TransactionHistory: React.FC = () => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h4 className="font-bold text-gray-900">{getTypeName(tx.type)}</h4>
+                      <h4 className="font-bold text-white">{getTypeName(tx.type)}</h4>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         tx.status === 'confirmed'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-yellow-100 text-yellow-700'
+                          ? 'bg-green-900/20 text-green-400'
+                          : 'bg-yellow-900/20 text-yellow-400'
                       }`}>
                         {tx.status === 'confirmed' ? t.history.confirmed : t.history.pending}
                       </span>
                       {/* Show user address for admin viewing all */}
                       {isOwner && viewMode === 'all' && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-mono bg-blue-100 text-blue-700">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-mono bg-blue-900/20 text-blue-400">
                           {tx.user.slice(0, 6)}...{tx.user.slice(-4)}
                         </span>
                       )}
@@ -310,49 +310,49 @@ const TransactionHistory: React.FC = () => {
                     <div className="space-y-1 mb-2">
                       {tx.type === 'reward_claimed' ? (
                         <>
-                          <p className="text-sm text-gray-600">
-                            {t.history.mcReward}: <span className="font-semibold text-macoin-600">{parseFloat(tx.amount).toFixed(2)} USDT</span>
+                          <p className="text-sm text-slate-400">
+                            {t.history.usdtReward}: <span className="font-semibold text-macoin-400">{parseFloat(tx.amount).toFixed(2)} USDT</span>
                           </p>
-                          <p className="text-sm text-gray-600">
-                            {t.history.jbcReward}: <span className="font-semibold text-macoin-600">{parseFloat(tx.amount2 || '0').toFixed(2)} ARC</span>
+                          <p className="text-sm text-slate-400">
+                            {t.history.arcReward}: <span className="font-semibold text-macoin-400">{parseFloat(tx.amount2 || '0').toFixed(2)} ARC</span>
                           </p>
                         </>
                       ) : tx.type === 'liquidity_staked' ? (
                         <>
-                          <p className="text-sm text-gray-600">
-                            {t.history.amount}: <span className="font-semibold text-macoin-600">{parseFloat(tx.amount).toFixed(2)} USDT</span>
+                          <p className="text-sm text-slate-400">
+                            {t.history.amount}: <span className="font-semibold text-macoin-400">{parseFloat(tx.amount).toFixed(2)} USDT</span>
                           </p>
-                          <p className="text-sm text-gray-600">
-                            {t.history.cycle}: <span className="font-semibold text-macoin-600">{tx.amount2} {t.mining.days}</span>
+                          <p className="text-sm text-slate-400">
+                            {t.history.cycle}: <span className="font-semibold text-macoin-400">{tx.amount2} {t.mining.days}</span>
                           </p>
                         </>
                       ) : tx.type === 'swap_mc_to_jbc' ? (
                         <>
-                          <p className="text-sm text-gray-600">
-                            {t.history.paid}: <span className="font-semibold text-red-600">{parseFloat(tx.amount).toFixed(2)} USDT</span>
+                          <p className="text-sm text-slate-400">
+                            {t.history.paid}: <span className="font-semibold text-red-400">{parseFloat(tx.amount).toFixed(2)} USDT</span>
                           </p>
-                          <p className="text-sm text-gray-600">
-                            {t.history.received}: <span className="font-semibold text-green-600">{parseFloat(tx.amount2 || '0').toFixed(2)} ARC</span>
+                          <p className="text-sm text-slate-400">
+                            {t.history.received}: <span className="font-semibold text-green-400">{parseFloat(tx.amount2 || '0').toFixed(2)} ARC</span>
                           </p>
                         </>
                       ) : tx.type === 'swap_jbc_to_mc' ? (
                         <>
-                          <p className="text-sm text-gray-600">
-                            {t.history.paid}: <span className="font-semibold text-red-600">{parseFloat(tx.amount).toFixed(2)} ARC</span>
+                          <p className="text-sm text-slate-400">
+                            {t.history.paid}: <span className="font-semibold text-red-400">{parseFloat(tx.amount).toFixed(2)} ARC</span>
                           </p>
-                          <p className="text-sm text-gray-600">
-                            {t.history.received}: <span className="font-semibold text-green-600">{parseFloat(tx.amount2 || '0').toFixed(2)} USDT</span>
+                          <p className="text-sm text-slate-400">
+                            {t.history.received}: <span className="font-semibold text-green-400">{parseFloat(tx.amount2 || '0').toFixed(2)} USDT</span>
                           </p>
                         </>
                       ) : (
-                        <p className="text-sm text-gray-600">
-                          {t.history.amount}: <span className="font-semibold text-macoin-600">{parseFloat(tx.amount).toFixed(2)} USDT</span>
+                        <p className="text-sm text-slate-400">
+                          {t.history.amount}: <span className="font-semibold text-macoin-400">{parseFloat(tx.amount).toFixed(2)} USDT</span>
                         </p>
                       )}
                     </div>
 
                     {/* Time and Block */}
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 text-xs text-slate-500">
                       <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {formatDate(tx.timestamp)}
@@ -369,7 +369,7 @@ const TransactionHistory: React.FC = () => {
                   href={`${explorerUrl}/tx/${tx.hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-mono text-gray-600 transition-colors"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-dark-card2 hover:bg-slate-700 rounded-lg text-sm font-mono text-slate-400 transition-colors border border-dark-border"
                 >
                   {tx.hash.slice(0, 6)}...{tx.hash.slice(-4)}
                   <ExternalLink className="w-3 h-3" />

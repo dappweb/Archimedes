@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract JBC is ERC20, Ownable {
+contract ARC is ERC20, Ownable {
     // Burn address
     address public constant BLACK_HOLE = 0x000000000000000000000000000000000000dEaD;
     
@@ -18,7 +18,7 @@ contract JBC is ERC20, Ownable {
     uint256 public constant BUY_TAX = 50; // 50%
     uint256 public constant SELL_TAX = 25; // 25%
 
-    constructor(address initialOwner) ERC20("Jinbao Coin", "JBC") Ownable(initialOwner) {
+    constructor(address initialOwner) ERC20("Archimedes Coin", "ARC") Ownable(initialOwner) {
         // Initial mint: 100 million
         // 5 million to LP (should be handled by deployer/protocol)
         // 95 million to Protocol for Mining

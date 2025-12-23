@@ -1,42 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useWeb3 } from '../Web3Context';
-import { Settings, Save, AlertTriangle, Megaphone } from 'lucide-react';
+import { Settings, Save, AlertTriangle, Megaphone, Users, Shield } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
-import { API_BASE_URL } from '../constants';
 
 const AdminPanel: React.FC = () => {
   const { t } = useLanguage();
-  const { protocolContract, isConnected, account, provider, mcContract, jbcContract } = useWeb3();
+  const { protocolContract, isConnected, provider, usdtContract, arcContract } = useWeb3();
   const [loading, setLoading] = useState(false);
 
-  // Distribution Percents
-  const [direct, setDirect] = useState('25');
-  const [level, setLevel] = useState('15');
-  const [marketing, setMarketing] = useState('5');
-  const [buyback, setBuyback] = useState('5');
-  const [lp, setLp] = useState('25');
-  const [treasury, setTreasury] = useState('25');
-
-  // Swap Taxes
-  const [buyTax, setBuyTax] = useState('50');
-  const [sellTax, setSellTax] = useState('25');
-
-  // Redemption Fee
-  const [redeemFee, setRedeemFee] = useState('1');
-
   // Wallets
-  const [marketingWallet, setMarketingWallet] = useState('');
-  const [treasuryWallet, setTreasuryWallet] = useState('');
+  const [marketingWallet, setMarketingWallet] = useState(''); // Acts as Platform Wallet
   const [lpWallet, setLpWallet] = useState('');
-  const [buybackWallet, setBuybackWallet] = useState('');
 
   // User Management
   const [targetUser, setTargetUser] = useState('');
   const [newReferrer, setNewReferrer] = useState('');
   const [activeDirects, setActiveDirects] = useState('');
   const [teamCount, setTeamCount] = useState('');
+
+  // Whitelist & Office
+  const [whitelistAddr, setWhitelistAddr] = useState('');
+  const [officeAddr, setOfficeAddr] = useState('');
 
   // Announcement Management
   const [announceZh, setAnnounceZh] = useState('');
@@ -57,8 +43,8 @@ const AdminPanel: React.FC = () => {
   }, []);
 
   // Liquidity Management
-  const [mcLiquidityAmount, setMcLiquidityAmount] = useState('');
-  const [jbcLiquidityAmount, setJbcLiquidityAmount] = useState('');
+  const [usdtLiquidityAmount, setUsdtLiquidityAmount] = useState('');
+  const [arcLiquidityAmount, setArcLiquidityAmount] = useState('');
 
   const publishAnnouncement = () => {
     try {
@@ -92,60 +78,15 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const updateDistribution = async () => {
-    if (!protocolContract) return;
-    setLoading(true);
-    try {
-      const tx = await protocolContract.setDistributionPercents(
-        direct, level, marketing, buyback, lp, treasury
-      );
-      await tx.wait();
-      toast.success(t.admin.success);
-    } catch (err: any) {
-      toast.error(t.admin.failed + (err.reason || err.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateSwapTaxes = async () => {
-    if (!protocolContract) return;
-    setLoading(true);
-    try {
-      const tx = await protocolContract.setSwapTaxes(buyTax, sellTax);
-      await tx.wait();
-      toast.success(t.admin.success);
-    } catch (err: any) {
-      toast.error(t.admin.failed + (err.reason || err.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateRedeemFee = async () => {
-    if (!protocolContract) return;
-    setLoading(true);
-    try {
-      const tx = await protocolContract.setRedemptionFee(redeemFee);
-      await tx.wait();
-      toast.success(t.admin.success);
-    } catch (err: any) {
-      toast.error(t.admin.failed + (err.reason || err.message));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const updateWallets = async () => {
     if (!protocolContract) return;
     setLoading(true);
     try {
-        // Simple check
-        if (!marketingWallet || !treasuryWallet || !lpWallet || !buybackWallet) {
-            toast.error(t.admin.required);
+        if (!marketingWallet || !lpWallet) {
+            toast.error("Required: Platform & LP Wallet");
             return;
         }
-      const tx = await protocolContract.setWallets(marketingWallet, treasuryWallet, lpWallet, buybackWallet);
+      const tx = await protocolContract.setWallets(marketingWallet, lpWallet);
       await tx.wait();
       toast.success(t.admin.success);
     } catch (err: any) {
@@ -183,7 +124,37 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const addLiquidity = async (tokenType: 'MC' | 'JBC') => {
+  const handleSetWhitelist = async (status: boolean) => {
+    if (!protocolContract || !whitelistAddr) return;
+    setLoading(true);
+    try {
+        const tx = await protocolContract.setWhitelist(whitelistAddr, status);
+        await tx.wait();
+        toast.success(status ? "Added to Whitelist" : "Removed from Whitelist");
+        setWhitelistAddr('');
+    } catch (e: any) {
+        toast.error("Failed: " + (e.reason || e.message));
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const handleSetOffice = async (status: boolean) => {
+    if (!protocolContract || !officeAddr) return;
+    setLoading(true);
+    try {
+        const tx = await protocolContract.setCommunityOffice(officeAddr, status);
+        await tx.wait();
+        toast.success(status ? "Office Set" : "Office Removed");
+        setOfficeAddr('');
+    } catch (e: any) {
+        toast.error("Failed: " + (e.reason || e.message));
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const addLiquidity = async (tokenType: 'USDT' | 'ARC') => {
     if (!isConnected || !provider) {
         toast.error("Connect wallet first");
         return;
@@ -194,32 +165,32 @@ const AdminPanel: React.FC = () => {
         const { CONTRACT_ADDRESSES } = await import('../Web3Context');
         const signer = await provider.getSigner();
 
-        if (tokenType === 'MC' && mcLiquidityAmount) {
-            const amount = ethers.parseEther(mcLiquidityAmount);
+        if (tokenType === 'USDT' && usdtLiquidityAmount) {
+            const amount = ethers.parseEther(usdtLiquidityAmount);
 
-            if (!mcContract) {
-                toast.error("MC contract not found");
+            if (!usdtContract) {
+                toast.error("USDT contract not found");
                 return;
             }
 
-            // Transfer MC to protocol contract
-            const tx = await mcContract.connect(signer).transfer(CONTRACT_ADDRESSES.PROTOCOL, amount);
+            // Transfer USDT to protocol contract
+            const tx = await usdtContract.connect(signer).transfer(CONTRACT_ADDRESSES.PROTOCOL, amount);
             await tx.wait();
-            toast.success(`Added ${mcLiquidityAmount} USDT to pool!`);
-            setMcLiquidityAmount('');
-        } else if (tokenType === 'JBC' && jbcLiquidityAmount) {
-            const amount = ethers.parseEther(jbcLiquidityAmount);
+            toast.success(`Added ${usdtLiquidityAmount} USDT to pool!`);
+            setUsdtLiquidityAmount('');
+        } else if (tokenType === 'ARC' && arcLiquidityAmount) {
+            const amount = ethers.parseEther(arcLiquidityAmount);
 
-            if (!jbcContract) {
+            if (!arcContract) {
                 toast.error("ARC contract not found");
                 return;
             }
 
-            // Transfer JBC to protocol contract
-            const tx = await jbcContract.connect(signer).transfer(CONTRACT_ADDRESSES.PROTOCOL, amount);
+            // Transfer ARC to protocol contract
+            const tx = await arcContract.connect(signer).transfer(CONTRACT_ADDRESSES.PROTOCOL, amount);
             await tx.wait();
-            toast.success(`Added ${jbcLiquidityAmount} ARC to pool!`);
-            setJbcLiquidityAmount('');
+            toast.success(`Added ${arcLiquidityAmount} ARC to pool!`);
+            setArcLiquidityAmount('');
         }
     } catch (err: any) {
         console.error(err);
@@ -232,44 +203,44 @@ const AdminPanel: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 animate-fade-in pb-20">
       <div className="text-center space-y-1 md:space-y-2">
-        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 flex items-center justify-center gap-2">
-            <Settings className="text-red-600 md:w-7 md:h-7" size={24} /> {t.admin.title}
+        <h2 className="text-2xl md:text-3xl font-bold text-white flex items-center justify-center gap-2">
+            <Settings className="text-red-400 md:w-7 md:h-7" size={24} /> {t.admin.title}
         </h2>
-        <p className="text-sm md:text-base text-slate-500">{t.admin.subtitle}</p>
+        <p className="text-sm md:text-base text-slate-400">{t.admin.subtitle}</p>
       </div>
 
-      {/* Announcement Management - 最优先显示 */}
-      <div className="glass-panel p-6 md:p-8 rounded-xl md:rounded-2xl bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300">
+      {/* Announcement Management */}
+      <div className="glass-panel p-6 md:p-8 rounded-xl md:rounded-2xl bg-gradient-to-br from-yellow-900/10 to-orange-900/10 border-2 border-yellow-500/30">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-yellow-100 rounded-lg">
-            <Megaphone className="text-yellow-600" size={24} />
+          <div className="p-2 bg-yellow-900/20 rounded-lg">
+            <Megaphone className="text-yellow-400" size={24} />
           </div>
           <div>
-            <h3 className="text-xl md:text-2xl font-bold text-slate-900">{t.admin.announcement}</h3>
-            <p className="text-sm text-slate-600">{t.admin.announcementDesc}</p>
+            <h3 className="text-xl md:text-2xl font-bold text-white">{t.admin.announcement}</h3>
+            <p className="text-sm text-slate-400">{t.admin.announcementDesc}</p>
           </div>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">{t.admin.announcementZh}</label>
+            <label className="block text-sm font-bold text-slate-300 mb-2">{t.admin.announcementZh}</label>
             <textarea
               value={announceZh}
               onChange={(e) => setAnnounceZh(e.target.value)}
               placeholder={t.admin.announcementPlaceholder}
               rows={3}
-              className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm resize-none"
+              className="w-full px-4 py-3 border-2 border-dark-border bg-dark-card2 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">{t.admin.announcementEn}</label>
+            <label className="block text-sm font-bold text-slate-300 mb-2">{t.admin.announcementEn}</label>
             <textarea
               value={announceEn}
               onChange={(e) => setAnnounceEn(e.target.value)}
               placeholder={t.admin.announcementPlaceholder}
               rows={3}
-              className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm resize-none"
+              className="w-full px-4 py-3 border-2 border-dark-border bg-dark-card2 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm resize-none"
             />
           </div>
 
@@ -277,13 +248,13 @@ const AdminPanel: React.FC = () => {
             <button
               onClick={publishAnnouncement}
               disabled={!announceZh && !announceEn}
-              className="flex-1 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+              className="flex-1 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {t.admin.publishAnnouncement}
             </button>
             <button
               onClick={clearAnnouncement}
-              className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition-colors"
+              className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold rounded-lg transition-colors"
             >
               {t.admin.clearAnnouncement}
             </button>
@@ -292,128 +263,120 @@ const AdminPanel: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {/* Distribution Settings */}
-          <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-white border border-slate-200">
-              <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-800">{t.admin.distSettings}</h3>
-              <div className="space-y-2 md:space-y-3">
-                  <div className="flex justify-between items-center gap-2">
-                      <label className="text-sm md:text-base">{t.admin.direct}</label>
-                      <input type="number" value={direct} onChange={e => setDirect(e.target.value)} className="w-16 md:w-20 p-1.5 md:p-2 border rounded text-sm md:text-base" />
+          {/* Whitelist Management */}
+          <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <Shield className="text-slate-400" size={20} />
+                  <h3 className="text-lg md:text-xl font-bold text-slate-200">Whitelist Manager</h3>
+              </div>
+              <div className="space-y-3">
+                  <input 
+                      type="text" 
+                      value={whitelistAddr} 
+                      onChange={e => setWhitelistAddr(e.target.value)} 
+                      className="w-full p-2 border border-dark-border bg-dark-card2 text-white rounded text-sm font-mono focus:outline-none focus:border-macoin-500" 
+                      placeholder="User Address (0x...)" 
+                  />
+                  <div className="flex gap-2">
+                      <button 
+                          onClick={() => handleSetWhitelist(true)} 
+                          disabled={loading || !whitelistAddr} 
+                          className="flex-1 py-2 bg-green-700 text-white rounded hover:bg-green-800 disabled:opacity-50 transition-colors"
+                      >
+                          Add Whitelist
+                      </button>
+                      <button 
+                          onClick={() => handleSetWhitelist(false)} 
+                          disabled={loading || !whitelistAddr} 
+                          className="flex-1 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 transition-colors"
+                      >
+                          Remove
+                      </button>
                   </div>
-                  <div className="flex justify-between items-center gap-2">
-                      <label className="text-sm md:text-base">{t.admin.level}</label>
-                      <input type="number" value={level} onChange={e => setLevel(e.target.value)} className="w-16 md:w-20 p-1.5 md:p-2 border rounded text-sm md:text-base" />
-                  </div>
-                  <div className="flex justify-between items-center gap-2">
-                      <label className="text-sm md:text-base">{t.admin.marketing}</label>
-                      <input type="number" value={marketing} onChange={e => setMarketing(e.target.value)} className="w-16 md:w-20 p-1.5 md:p-2 border rounded text-sm md:text-base" />
-                  </div>
-                  <div className="flex justify-between items-center gap-2">
-                      <label className="text-sm md:text-base">{t.admin.buyback}</label>
-                      <input type="number" value={buyback} onChange={e => setBuyback(e.target.value)} className="w-16 md:w-20 p-1.5 md:p-2 border rounded text-sm md:text-base" />
-                  </div>
-                  <div className="flex justify-between items-center gap-2">
-                      <label className="text-sm md:text-base">{t.admin.lp}</label>
-                      <input type="number" value={lp} onChange={e => setLp(e.target.value)} className="w-16 md:w-20 p-1.5 md:p-2 border rounded text-sm md:text-base" />
-                  </div>
-                  <div className="flex justify-between items-center gap-2">
-                      <label className="text-sm md:text-base">{t.admin.treasury}</label>
-                      <input type="number" value={treasury} onChange={e => setTreasury(e.target.value)} className="w-16 md:w-20 p-1.5 md:p-2 border rounded text-sm md:text-base" />
-                  </div>
-                  <div className="pt-2 border-t text-xs md:text-sm text-slate-500">
-                      {t.admin.total}: {Number(direct)+Number(level)+Number(marketing)+Number(buyback)+Number(lp)+Number(treasury)}% (Must be 100)
-                  </div>
-                  <button onClick={updateDistribution} disabled={loading} className="w-full py-2 md:py-2.5 bg-slate-900 text-white rounded-lg mt-2 hover:bg-slate-800 disabled:opacity-50 text-sm md:text-base">
-                      {t.admin.updateDist}
-                  </button>
               </div>
           </div>
 
-          {/* Swap Taxes */}
-          <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-white border border-slate-200">
-              <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-800">{t.admin.swapTaxes}</h3>
-              <div className="space-y-2 md:space-y-3">
-                  <div className="flex justify-between items-center gap-2">
-                      <label className="text-sm md:text-base">{t.admin.buyTax}</label>
-                      <input type="number" value={buyTax} onChange={e => setBuyTax(e.target.value)} className="w-16 md:w-20 p-1.5 md:p-2 border rounded text-sm md:text-base" />
-                  </div>
-                  <div className="flex justify-between items-center gap-2">
-                      <label className="text-sm md:text-base">{t.admin.sellTax}</label>
-                      <input type="number" value={sellTax} onChange={e => setSellTax(e.target.value)} className="w-16 md:w-20 p-1.5 md:p-2 border rounded text-sm md:text-base" />
-                  </div>
-                  <button onClick={updateSwapTaxes} disabled={loading} className="w-full py-2 md:py-2.5 bg-slate-900 text-white rounded-lg mt-2 hover:bg-slate-800 disabled:opacity-50 text-sm md:text-base">
-                      {t.admin.updateTaxes}
-                  </button>
+          {/* Office Management */}
+          <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <Users className="text-slate-400" size={20} />
+                  <h3 className="text-lg md:text-xl font-bold text-slate-200">Community Office</h3>
               </div>
-
-              <h3 className="text-lg md:text-xl font-bold mt-6 md:mt-8 mb-3 md:mb-4 text-slate-800">{t.admin.redeemFee}</h3>
-              <div className="space-y-2 md:space-y-3">
-                  <div className="flex justify-between items-center gap-2">
-                      <label className="text-sm md:text-base">{t.admin.fee}</label>
-                      <input type="number" value={redeemFee} onChange={e => setRedeemFee(e.target.value)} className="w-16 md:w-20 p-1.5 md:p-2 border rounded text-sm md:text-base" />
+              <div className="space-y-3">
+                  <input 
+                      type="text" 
+                      value={officeAddr} 
+                      onChange={e => setOfficeAddr(e.target.value)} 
+                      className="w-full p-2 border border-dark-border bg-dark-card2 text-white rounded text-sm font-mono focus:outline-none focus:border-macoin-500" 
+                      placeholder="Office Address (0x...)" 
+                  />
+                  <div className="flex gap-2">
+                      <button 
+                          onClick={() => handleSetOffice(true)} 
+                          disabled={loading || !officeAddr} 
+                          className="flex-1 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 disabled:opacity-50 transition-colors"
+                      >
+                          Set Office
+                      </button>
+                      <button 
+                          onClick={() => handleSetOffice(false)} 
+                          disabled={loading || !officeAddr} 
+                          className="flex-1 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 transition-colors"
+                      >
+                          Remove
+                      </button>
                   </div>
-                  <button onClick={updateRedeemFee} disabled={loading} className="w-full py-2 md:py-2.5 bg-slate-900 text-white rounded-lg mt-2 hover:bg-slate-800 disabled:opacity-50 text-sm md:text-base">
-                      {t.admin.updateFee}
-                  </button>
               </div>
           </div>
       </div>
 
       {/* Wallet Addresses */}
-      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-white border border-slate-200">
-          <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-800">{t.admin.wallets}</h3>
+      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border">
+          <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-200">{t.admin.wallets}</h3>
           <div className="space-y-3 md:space-y-4">
               <div>
-                  <label className="block text-xs md:text-sm text-slate-500 mb-1">{t.admin.marketingWallet}</label>
-                  <input type="text" value={marketingWallet} onChange={e => setMarketingWallet(e.target.value)} className="w-full p-2 md:p-2.5 border rounded text-xs md:text-sm font-mono" placeholder="0x..." />
+                  <label className="block text-xs md:text-sm text-slate-400 mb-1">Platform Wallet</label>
+                  <input type="text" value={marketingWallet} onChange={e => setMarketingWallet(e.target.value)} className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-xs md:text-sm font-mono focus:outline-none focus:border-macoin-500" placeholder="0x..." />
               </div>
               <div>
-                  <label className="block text-xs md:text-sm text-slate-500 mb-1">{t.admin.treasuryWallet}</label>
-                  <input type="text" value={treasuryWallet} onChange={e => setTreasuryWallet(e.target.value)} className="w-full p-2 md:p-2.5 border rounded text-xs md:text-sm font-mono" placeholder="0x..." />
+                  <label className="block text-xs md:text-sm text-slate-400 mb-1">LP Wallet</label>
+                  <input type="text" value={lpWallet} onChange={e => setLpWallet(e.target.value)} className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-xs md:text-sm font-mono focus:outline-none focus:border-macoin-500" placeholder="0x..." />
               </div>
-              <div>
-                  <label className="block text-xs md:text-sm text-slate-500 mb-1">{t.admin.lpWallet}</label>
-                  <input type="text" value={lpWallet} onChange={e => setLpWallet(e.target.value)} className="w-full p-2 md:p-2.5 border rounded text-xs md:text-sm font-mono" placeholder="0x..." />
-              </div>
-              <div>
-                  <label className="block text-xs md:text-sm text-slate-500 mb-1">{t.admin.buybackWallet}</label>
-                  <input type="text" value={buybackWallet} onChange={e => setBuybackWallet(e.target.value)} className="w-full p-2 md:p-2.5 border rounded text-xs md:text-sm font-mono" placeholder="0x..." />
-              </div>
-              <button onClick={updateWallets} disabled={loading} className="w-full py-2 md:py-2.5 bg-slate-900 text-white rounded-lg mt-2 hover:bg-slate-800 disabled:opacity-50 text-sm md:text-base">
+              <button onClick={updateWallets} disabled={loading} className="w-full py-2 md:py-2.5 bg-macoin-600 text-white rounded-lg mt-2 hover:bg-macoin-700 disabled:opacity-50 text-sm md:text-base transition-colors">
                   {t.admin.updateWallets}
               </button>
           </div>
       </div>
 
       {/* User Management */}
-      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-white border border-slate-200">
-          <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-800">{t.admin.userMgmt}</h3>
+      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border">
+          <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-200">{t.admin.userMgmt}</h3>
           <div className="space-y-3 md:space-y-4">
               <div>
-                  <label className="block text-xs md:text-sm text-slate-500 mb-1">{t.admin.userAddr}</label>
-                  <input type="text" value={targetUser} onChange={e => setTargetUser(e.target.value)} className="w-full p-2 md:p-2.5 border rounded text-xs md:text-sm font-mono" placeholder="0x..." />
+                  <label className="block text-xs md:text-sm text-slate-400 mb-1">{t.admin.userAddr}</label>
+                  <input type="text" value={targetUser} onChange={e => setTargetUser(e.target.value)} className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-xs md:text-sm font-mono focus:outline-none focus:border-macoin-500" placeholder="0x..." />
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 border-t pt-3 md:pt-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 border-t border-dark-border pt-3 md:pt-4">
                   <div>
-                      <label className="block text-xs md:text-sm text-slate-500 mb-1">{t.admin.newReferrer}</label>
+                      <label className="block text-xs md:text-sm text-slate-400 mb-1">{t.admin.newReferrer}</label>
                       <div className="flex flex-col sm:flex-row gap-2">
-                          <input type="text" value={newReferrer} onChange={e => setNewReferrer(e.target.value)} className="w-full p-2 md:p-2.5 border rounded text-xs md:text-sm font-mono" placeholder="0x..." />
-                          <button onClick={updateReferrer} disabled={loading} className="px-3 md:px-4 py-2 md:py-2.5 bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50 text-xs md:text-sm whitespace-nowrap">
+                          <input type="text" value={newReferrer} onChange={e => setNewReferrer(e.target.value)} className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-xs md:text-sm font-mono focus:outline-none focus:border-macoin-500" placeholder="0x..." />
+                          <button onClick={updateReferrer} disabled={loading} className="px-3 md:px-4 py-2 md:py-2.5 bg-macoin-600 text-white rounded hover:bg-macoin-700 disabled:opacity-50 text-xs md:text-sm whitespace-nowrap transition-colors">
                               {t.admin.updateReferrer}
                           </button>
                       </div>
                   </div>
                   <div className="space-y-2">
                       <div className="flex gap-2 items-center">
-                          <label className="text-xs md:text-sm text-slate-500 w-20 md:w-24">{t.admin.activeDirects}</label>
-                          <input type="number" value={activeDirects} onChange={e => setActiveDirects(e.target.value)} className="w-full p-2 md:p-2.5 border rounded text-xs md:text-sm" />
+                          <label className="text-xs md:text-sm text-slate-400 w-20 md:w-24">{t.admin.activeDirects}</label>
+                          <input type="number" value={activeDirects} onChange={e => setActiveDirects(e.target.value)} className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-xs md:text-sm focus:outline-none focus:border-macoin-500" />
                       </div>
                       <div className="flex gap-2 items-center">
-                          <label className="text-xs md:text-sm text-slate-500 w-20 md:w-24">{t.admin.teamCount}</label>
-                          <input type="number" value={teamCount} onChange={e => setTeamCount(e.target.value)} className="w-full p-2 md:p-2.5 border rounded text-xs md:text-sm" />
+                          <label className="text-xs md:text-sm text-slate-400 w-20 md:w-24">{t.admin.teamCount}</label>
+                          <input type="number" value={teamCount} onChange={e => setTeamCount(e.target.value)} className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-xs md:text-sm focus:outline-none focus:border-macoin-500" />
                       </div>
-                      <button onClick={updateUserStats} disabled={loading} className="w-full py-2 md:py-2.5 bg-slate-900 text-white rounded hover:bg-slate-800 disabled:opacity-50 text-xs md:text-sm">
+                      <button onClick={updateUserStats} disabled={loading} className="w-full py-2 md:py-2.5 bg-macoin-600 text-white rounded hover:bg-macoin-700 disabled:opacity-50 text-xs md:text-sm transition-colors">
                           {t.admin.updateUser}
                       </button>
                   </div>
@@ -422,45 +385,45 @@ const AdminPanel: React.FC = () => {
       </div>
 
       {/* Liquidity Management */}
-      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-white border border-red-200">
+      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-red-500/30">
           <div className="flex items-center gap-2 mb-3 md:mb-4">
-              <AlertTriangle className="text-red-600" size={20} />
-              <h3 className="text-lg md:text-xl font-bold text-slate-800">Add Pool Liquidity (Admin Only)</h3>
+              <AlertTriangle className="text-red-400" size={20} />
+              <h3 className="text-lg md:text-xl font-bold text-slate-200">Add Pool Liquidity (Admin Only)</h3>
           </div>
-          <p className="text-xs md:text-sm text-slate-500 mb-4">Transfer tokens from your wallet to the protocol contract to add liquidity for swaps.</p>
+          <p className="text-xs md:text-sm text-slate-400 mb-4">Transfer tokens from your wallet to the protocol contract to add liquidity for swaps.</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
-                  <label className="block text-sm font-medium text-slate-700">Add USDT Liquidity</label>
+                  <label className="block text-sm font-medium text-slate-300">Add USDT Liquidity</label>
                   <input 
                       type="number" 
-                      value={mcLiquidityAmount} 
-                      onChange={e => setMcLiquidityAmount(e.target.value)} 
-                      className="w-full p-2 md:p-2.5 border rounded text-sm"
+                      value={usdtLiquidityAmount} 
+                      onChange={e => setUsdtLiquidityAmount(e.target.value)} 
+                      className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-sm focus:outline-none focus:border-macoin-500"
                       placeholder="Amount in USDT"
                   />
                   <button 
                       onClick={() => addLiquidity('USDT')} 
-                      disabled={loading || !mcLiquidityAmount}
-                      className="w-full py-2 md:py-2.5 bg-macoin-500 text-white rounded-lg hover:bg-macoin-600 disabled:opacity-50 text-sm md:text-base"
+                      disabled={loading || !usdtLiquidityAmount}
+                      className="w-full py-2 md:py-2.5 bg-macoin-600 text-white rounded-lg hover:bg-macoin-700 disabled:opacity-50 text-sm md:text-base transition-colors"
                   >
                       Add USDT to Pool
                   </button>
               </div>
               
               <div className="space-y-3">
-                  <label className="block text-sm font-medium text-slate-700">Add ARC Liquidity</label>
+                  <label className="block text-sm font-medium text-slate-300">Add ARC Liquidity</label>
                   <input 
                       type="number" 
-                      value={jbcLiquidityAmount} 
-                      onChange={e => setJbcLiquidityAmount(e.target.value)} 
-                      className="w-full p-2 md:p-2.5 border rounded text-sm"
+                      value={arcLiquidityAmount} 
+                      onChange={e => setArcLiquidityAmount(e.target.value)} 
+                      className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-sm focus:outline-none focus:border-macoin-500"
                       placeholder="Amount in ARC"
                   />
                   <button 
-                      onClick={() => addLiquidity('JBC')} 
-                      disabled={loading || !jbcLiquidityAmount}
-                      className="w-full py-2 md:py-2.5 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50 text-sm md:text-base"
+                      onClick={() => addLiquidity('ARC')} 
+                      disabled={loading || !arcLiquidityAmount}
+                      className="w-full py-2 md:py-2.5 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 text-sm md:text-base transition-colors"
                   >
                       Add ARC to Pool
                   </button>

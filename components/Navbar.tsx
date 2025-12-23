@@ -38,7 +38,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-dark-bg/80 backdrop-blur-md border-b border-dark-border">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
             {/* Logo */}
@@ -47,8 +47,8 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
                 {/* <Diamond size={20} className="text-white md:w-6 md:h-6" /> */}
                 <img src={iconImg} alt="" className=" w-10 md:h-10" />
               </div>
-              <span className="text-lg md:text-2xl font-black text-slate-900 tracking-tight">
-                Archimedes <span className="text-macoin-600">Protocol</span>
+              <span className="text-lg md:text-2xl font-black text-white tracking-tight">
+                Archimedes <span className="text-macoin-500">Protocol</span>
               </span>
             </div>
 
@@ -57,7 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
               <button
                 onClick={() => setTab(AppTab.HOME)}
                 className={`flex items-center gap-2 font-bold transition-colors ${
-                  currentTab === AppTab.HOME ? "text-macoin-600" : "text-slate-500 hover:text-slate-900"
+                  currentTab === AppTab.HOME ? "text-macoin-500" : "text-slate-400 hover:text-white"
                 }`}
               >
                 <Home size={18} /> {t.nav.home}
@@ -65,7 +65,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
               <button
                 onClick={() => setTab(AppTab.MINING)}
                 className={`flex items-center gap-2 font-bold transition-colors ${
-                  currentTab === AppTab.MINING ? "text-macoin-600" : "text-slate-500 hover:text-slate-900"
+                  currentTab === AppTab.MINING ? "text-macoin-500" : "text-slate-400 hover:text-white"
                 }`}
               >
                 <Pickaxe size={18} /> {t.nav.mining}
@@ -73,7 +73,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
               <button
                 onClick={() => setTab(AppTab.TEAM)}
                 className={`flex items-center gap-2 font-bold transition-colors ${
-                  currentTab === AppTab.TEAM ? "text-macoin-600" : "text-slate-500 hover:text-slate-900"
+                  currentTab === AppTab.TEAM ? "text-macoin-500" : "text-slate-400 hover:text-white"
                 }`}
               >
                 <Users size={18} /> {t.nav.team}
@@ -81,7 +81,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
               <button
                 onClick={() => setTab(AppTab.SWAP)}
                 className={`flex items-center gap-2 font-bold transition-colors ${
-                  currentTab === AppTab.SWAP ? "text-macoin-600" : "text-slate-500 hover:text-slate-900"
+                  currentTab === AppTab.SWAP ? "text-macoin-500" : "text-slate-400 hover:text-white"
                 }`}
               >
                 <ArrowLeftRight size={18} /> Swap
@@ -89,7 +89,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
               <button
                 onClick={() => setTab(AppTab.HISTORY)}
                 className={`flex items-center gap-2 font-bold transition-colors ${
-                  currentTab === AppTab.HISTORY ? "text-macoin-600" : "text-slate-500 hover:text-slate-900"
+                  currentTab === AppTab.HISTORY ? "text-macoin-500" : "text-slate-400 hover:text-white"
                 }`}
               >
                 <FileText size={18} /> {t.nav.history}
@@ -98,7 +98,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
                 <button
                   onClick={() => setTab(AppTab.ADMIN)}
                   className={`flex items-center gap-2 font-bold transition-colors ${
-                    currentTab === AppTab.ADMIN ? "text-red-600" : "text-slate-500 hover:text-red-600"
+                    currentTab === AppTab.ADMIN ? "text-macoin-500" : "text-slate-400 hover:text-white"
                   }`}
                 >
                   <Settings size={18} /> Admin
@@ -106,92 +106,143 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
               )}
             </div>
 
-            {/* Wallet Connect */}
-            <div className="flex items-center gap-2 md:gap-4">
-              <button
-                onClick={() => setLanguage(language === "zh" ? "en" : "zh")}
-                className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors flex items-center gap-1 md:gap-2"
-                title="Switch Language"
-              >
-                <Globe size={18} className="md:w-5 md:h-5" />
-                <span className="text-xs md:text-sm font-bold hidden sm:inline">
-                  {language === "zh" ? "EN" : "中文"}
-                </span>
-              </button>
-              {/* Button removed as requested for auto-logic */}
-              <div className="scale-90 md:scale-100 origin-right">
-                <ConnectButton
-                  showBalance={false}
-                  chainStatus="icon"
-                  accountStatus={{ smallScreen: "avatar", largeScreen: "address" }}
-                />
+            {/* Wallet & Language & Mobile Menu */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Desktop Language Switcher */}
+              <div className="hidden md:block">
+                <button
+                  onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
+                  className="p-2 rounded-lg bg-dark-card hover:bg-dark-card2 text-slate-400 hover:text-white transition-colors border border-dark-border"
+                  title="Switch Language"
+                >
+                  <Globe size={20} />
+                </button>
               </div>
+
+              <ConnectButton.Custom>
+                {({
+                  account,
+                  chain,
+                  openAccountModal,
+                  openChainModal,
+                  openConnectModal,
+                  authenticationStatus,
+                  mounted,
+                }) => {
+                  // Note: If your app doesn't use authentication, you
+                  // can remove all 'authenticationStatus' checks
+                  const ready = mounted && authenticationStatus !== 'loading';
+                  const connected =
+                    ready &&
+                    account &&
+                    chain &&
+                    (!authenticationStatus ||
+                      authenticationStatus === 'authenticated');
+
+                  return (
+                    <div
+                      {...(!ready && {
+                        'aria-hidden': true,
+                        'style': {
+                          opacity: 0,
+                          pointerEvents: 'none',
+                          userSelect: 'none',
+                        },
+                      })}
+                    >
+                      {(() => {
+                        if (!connected) {
+                          return (
+                            <button onClick={openConnectModal} type="button" className="bg-primary-gradient text-white font-bold py-2 px-3 md:px-5 rounded-lg md:rounded-xl shadow-lg shadow-purple-900/20 hover:shadow-purple-900/40 transition-all text-xs md:text-sm flex items-center gap-2">
+                              {t.nav.connect}
+                            </button>
+                          );
+                        }
+
+                        if (chain.unsupported) {
+                          return (
+                            <button onClick={openChainModal} type="button" className="bg-red-500 text-white font-bold py-2 px-3 md:px-5 rounded-lg md:rounded-xl shadow-lg hover:shadow-xl transition-all text-xs md:text-sm">
+                              Wrong network
+                            </button>
+                          );
+                        }
+
+                        return (
+                          <div style={{ display: 'flex', gap: 12 }}>
+                            <button
+                              onClick={openAccountModal}
+                              type="button"
+                              className="bg-dark-card border border-dark-border text-slate-200 font-bold py-2 px-3 md:px-4 rounded-lg md:rounded-xl shadow-sm hover:bg-dark-card2 transition-all text-xs md:text-sm flex items-center gap-2"
+                            >
+                              {account.displayName}
+                              {/* {account.displayBalance
+                                ? ` (${account.displayBalance})`
+                                : ''} */}
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  );
+                }}
+              </ConnectButton.Custom>
             </div>
           </div>
         </div>
-      </nav>
 
-      {/* Mobile Nav (Simple Bottom Bar) - Moved out of nav to ensure fixed positioning works correctly */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 pb-safe z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-        <div className="flex justify-around items-center h-16">
-          <button
-            onClick={() => setTab(AppTab.HOME)}
-            className={`p-2 rounded-lg flex flex-col items-center gap-1 ${
-              currentTab === AppTab.HOME ? "text-macoin-600 bg-macoin-50" : "text-slate-400"
-            }`}
-          >
-            <Home size={20} />
-            <span className="text-[10px] font-medium">{t.nav.home}</span>
-          </button>
-          <button
-            onClick={() => setTab(AppTab.MINING)}
-            className={`p-2 rounded-lg flex flex-col items-center gap-1 ${
-              currentTab === AppTab.MINING ? "text-macoin-600 bg-macoin-50" : "text-slate-400"
-            }`}
-          >
-            <Pickaxe size={20} />
-            <span className="text-[10px] font-medium">{t.nav.mining}</span>
-          </button>
-          <button
-            onClick={() => setTab(AppTab.SWAP)}
-            className={`p-2 rounded-lg flex flex-col items-center gap-1 ${
-              currentTab === AppTab.SWAP ? "text-macoin-600 bg-macoin-50" : "text-slate-400"
-            }`}
-          >
-            <ArrowLeftRight size={20} />
-            <span className="text-[10px] font-medium">Swap</span>
-          </button>
-          <button
-            onClick={() => setTab(AppTab.HISTORY)}
-            className={`p-2 rounded-lg flex flex-col items-center gap-1 ${
-              currentTab === AppTab.HISTORY ? "text-macoin-600 bg-macoin-50" : "text-slate-400"
-            }`}
-          >
-            <FileText size={20} />
-            <span className="text-[10px] font-medium">{t.nav.history}</span>
-          </button>
-          <button
-            onClick={() => setTab(AppTab.TEAM)}
-            className={`p-2 rounded-lg flex flex-col items-center gap-1 ${
-              currentTab === AppTab.TEAM ? "text-macoin-600 bg-macoin-50" : "text-slate-400"
-            }`}
-          >
-            <Users size={20} />
-            <span className="text-[10px] font-medium">{t.nav.team}</span>
-          </button>
-          {isOwner && (
+        {/* Mobile Navigation Bar (Bottom) */}
+        <div className="fixed bottom-0 left-0 right-0 bg-dark-card/90 backdrop-blur-md border-t border-dark-border md:hidden safe-area-bottom z-50">
+          <div className="grid grid-cols-5 h-16">
             <button
-              onClick={() => setTab(AppTab.ADMIN)}
-              className={`p-2 rounded-lg flex flex-col items-center gap-1 ${
-                currentTab === AppTab.ADMIN ? "text-red-600 bg-red-50" : "text-slate-400"
+              onClick={() => setTab(AppTab.HOME)}
+              className={`flex flex-col items-center justify-center gap-1 ${
+                currentTab === AppTab.HOME ? "text-macoin-500" : "text-slate-500"
               }`}
             >
-              <Settings size={20} />
-              <span className="text-[10px] font-medium">Admin</span>
+              <Home size={20} />
+              <span className="text-[10px] font-medium">{t.nav.home}</span>
             </button>
-          )}
+            <button
+              onClick={() => setTab(AppTab.MINING)}
+              className={`flex flex-col items-center justify-center gap-1 ${
+                currentTab === AppTab.MINING ? "text-macoin-500" : "text-slate-500"
+              }`}
+            >
+              <Pickaxe size={20} />
+              <span className="text-[10px] font-medium">{t.nav.mining}</span>
+            </button>
+            <button
+              onClick={() => setTab(AppTab.SWAP)}
+              className={`flex flex-col items-center justify-center gap-1 ${
+                currentTab === AppTab.SWAP ? "text-macoin-500" : "text-slate-500"
+              }`}
+            >
+              <div className="bg-primary-gradient p-2.5 rounded-full -mt-6 shadow-lg shadow-purple-500/30 border-4 border-dark-bg">
+                <ArrowLeftRight size={22} className="text-white" />
+              </div>
+              <span className="text-[10px] font-medium">Swap</span>
+            </button>
+            <button
+              onClick={() => setTab(AppTab.TEAM)}
+              className={`flex flex-col items-center justify-center gap-1 ${
+                currentTab === AppTab.TEAM ? "text-macoin-500" : "text-slate-500"
+              }`}
+            >
+              <Users size={20} />
+              <span className="text-[10px] font-medium">{t.nav.team}</span>
+            </button>
+            <button
+              onClick={() => setTab(AppTab.HISTORY)}
+              className={`flex flex-col items-center justify-center gap-1 ${
+                currentTab === AppTab.HISTORY ? "text-macoin-500" : "text-slate-500"
+              }`}
+            >
+              <FileText size={20} />
+              <span className="text-[10px] font-medium">{t.nav.history}</span>
+            </button>
+          </div>
         </div>
-      </div>
+      </nav>
     </>
   )
 }

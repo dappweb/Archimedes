@@ -27,7 +27,7 @@ export const TEAM_LEVELS: TeamLevel[] = [
 
 export const MOCK_USER_STATS = {
   balanceUSDT: 5420.50,
-  balanceJBC: 125.00,
+  balanceARC: 125.00,
   totalRevenue: 8500.00,
   currentLevel: 'V2',
   teamCount: 42,
@@ -36,4 +36,4 @@ export const MOCK_USER_STATS = {
 };
 
 // Cloudflare Worker API URL (Replace with actual deployed URL)
-export const API_BASE_URL = "https://api.macoin-archimedes.com"; 
+export const API_BASE_URL = "https://api.archimedes-protocol.com"; 

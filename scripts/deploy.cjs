@@ -56,136 +56,139 @@ async function main() {
   console.log("💰 Account balance:", hre.ethers.formatEther(balance), networkConfig.currency);
   console.log("");
 
-  // 1. Deploy Mock MC Token (for testing environment)
-  // In production, you would use the address of the existing token
-  console.log("Deploying MockMC...");
-  const MockMC = await hre.ethers.getContractFactory("MockMC");
-  const mc = await MockMC.deploy();
-  await mc.waitForDeployment();
-  const mcAddress = await mc.getAddress();
-  console.log("MockMC deployed to:", mcAddress);
+  // 1. Deploy Mock USDT (formerly MockMC)
+  console.log("Deploying MockUSDT...");
+  const MockUSDT = await hre.ethers.getContractFactory("MockUSDT");
+  const usdt = await MockUSDT.deploy();
+  await usdt.waitForDeployment();
+  const usdtAddress = await usdt.getAddress();
+  console.log("MockUSDT deployed to:", usdtAddress);
 
-  // 2. Deploy JBC Token
-  console.log("Deploying JBC...");
-  const JBC = await hre.ethers.getContractFactory("JBC");
-  const jbc = await JBC.deploy(deployer.address);
-  await jbc.waitForDeployment();
-  const jbcAddress = await jbc.getAddress();
-  console.log("JBC deployed to:", jbcAddress);
+  // 2. Deploy ARC Token (formerly JBC)
+  console.log("Deploying ARC...");
+  const ARC = await hre.ethers.getContractFactory("ARC");
+  const arc = await ARC.deploy(deployer.address);
+  await arc.waitForDeployment();
+  const arcAddress = await arc.getAddress();
+  console.log("ARC deployed to:", arcAddress);
 
-  // 3. Deploy Protocol
+  // 3. Deploy DES Token
+  console.log("Deploying DES...");
+  // Using MockUSDT as base for DES token for simplicity in this demo, 
+  // in production should be a separate ERC20 implementation with specific DES logic if any
+  const DES = await hre.ethers.getContractFactory("MockUSDT"); 
+  const des = await DES.deploy();
+  await des.waitForDeployment();
+  const desAddress = await des.getAddress();
+  console.log("DES deployed to:", desAddress);
+
+  // 4. Deploy Protocol
   // Define wallet addresses (using deployer for all for simplicity in testnet)
-  const marketingWallet = deployer.address;
-  const treasuryWallet = deployer.address;
-  const lpInjectionWallet = deployer.address;
-  const buybackWallet = deployer.address;
+  const platformWallet = deployer.address;
+  const lpWallet = deployer.address;
 
-  console.log("Deploying JinbaoProtocol...");
-  const Protocol = await hre.ethers.getContractFactory("JinbaoProtocol");
+  console.log("Deploying ArchimedesProtocol...");
+  const Protocol = await hre.ethers.getContractFactory("ArchimedesProtocol");
   const protocol = await Protocol.deploy(
-    mcAddress,
-    jbcAddress,
-    marketingWallet,
-    treasuryWallet,
-    lpInjectionWallet,
-    buybackWallet
+    usdtAddress,
+    arcAddress,
+    desAddress,
+    platformWallet,
+    lpWallet
   );
   await protocol.waitForDeployment();
   const protocolAddress = await protocol.getAddress();
-  console.log("JinbaoProtocol deployed to:", protocolAddress);
+  console.log("ArchimedesProtocol deployed to:", protocolAddress);
 
-  // 4. Setup Permissions & Initial Funding
+  // 5. Setup Permissions & Initial Funding
   console.log("Setting up permissions...");
   
-  // Set Protocol address in JBC (to exempt from tax)
-  await jbc.setProtocol(protocolAddress);
-  console.log("JBC: Protocol address set.");
+  // Set Protocol address in ARC (to exempt from tax if needed, or set minter)
+  try {
+      const tx = await arc.setProtocol(protocolAddress);
+      await tx.wait();
+      console.log("Protocol address set in ARC token");
+  } catch (e) {
+      console.log("Skipping setProtocol for ARC (might not exist in contract):", e.message);
+  }
 
-  // Fund Protocol with Tokens for Rewards
-  // Mint/Transfer initial supply to protocol
-  // JBC: 100M minted to deployer. Let's send 1M to protocol.
-  const fundAmount = hre.ethers.parseEther("1000000");
+  // Funding Protocol with Tokens (Simulation)
+  console.log("Funding protocol with initial tokens...");
   
-  // Add manual gas override for Sepolia
-  const txOptions = {
-    gasLimit: 100000,
-    // maxFeePerGas: ... (optional, let wallet handle or ethers estimate)
-  };
+  // Fund Protocol with ARC (for rewards)
+  const initialARCSupply = hre.ethers.parseEther("1000000"); // 1M ARC
+  await arc.transfer(protocolAddress, initialARCSupply);
+  console.log("Transferred 1M ARC to Protocol");
 
-  try {
-      console.log("Transferring JBC to Protocol...");
-      const tx1 = await jbc.transfer(protocolAddress, fundAmount);
-      await tx1.wait();
-      console.log(`Transferred 1,000,000 JBC to Protocol`);
-  } catch (error) {
-      console.log("Skipping JBC transfer (might be already done or nonce issue):", error.message);
-  }
-
-  try {
-      console.log("Transferring MC to Protocol...");
-      const tx2 = await mc.transfer(protocolAddress, fundAmount);
-      await tx2.wait();
-      console.log(`Transferred 1,000,000 MC to Protocol`);
-  } catch (error) {
-      console.log("Skipping MC transfer (might be already done or nonce issue):", error.message);
-  }
+  // Fund Protocol with USDT (for rewards/withdrawals simulation)
+  const initialUSDTSupply = hre.ethers.parseEther("1000000"); // 1M USDT
+  await usdt.transfer(protocolAddress, initialUSDTSupply);
+  console.log("Transferred 1M USDT to Protocol");
 
   // Save deployment info
   const deploymentInfo = {
     network: networkName,
-    networkName: networkConfig.name,
     chainId: networkConfig.chainId,
-    explorer: networkConfig.explorer,
-    deployer: deployer.address,
-    timestamp: new Date().toISOString(),
+    date: new Date().toISOString(),
     contracts: {
-      MockMC: mcAddress,
-      JBC: jbcAddress,
-      JinbaoProtocol: protocolAddress
+      USDT: usdtAddress,
+      ARC: arcAddress,
+      DES: desAddress,
+      Protocol: protocolAddress
     },
     wallets: {
-      marketing: marketingWallet,
-      treasury: treasuryWallet,
-      lpInjection: lpInjectionWallet,
-      buyback: buybackWallet
+        platform: platformWallet,
+        lp: lpWallet
     }
   };
 
-  // Create deployments directory if it doesn't exist
-  const deploymentsDir = path.join(__dirname, "..", "deployments");
-  if (!fs.existsSync(deploymentsDir)) {
-    fs.mkdirSync(deploymentsDir);
+  const deployDir = path.join(__dirname, "../deployments");
+  if (!fs.existsSync(deployDir)) {
+    fs.mkdirSync(deployDir);
   }
 
-  // Save deployment info with timestamp
-  const filename = `deployment-${networkName}-${Date.now()}.json`;
-  const filepath = path.join(deploymentsDir, filename);
-  fs.writeFileSync(filepath, JSON.stringify(deploymentInfo, null, 2));
+  fs.writeFileSync(
+    path.join(deployDir, `deployment-${networkName}-${Date.now()}.json`),
+    JSON.stringify(deploymentInfo, null, 2)
+  );
+  
+  // Update latest.json
+  fs.writeFileSync(
+    path.join(deployDir, `latest-${networkName}.json`),
+    JSON.stringify(deploymentInfo, null, 2)
+  );
 
-  // Also save as latest for this network
-  const latestPath = path.join(deploymentsDir, `latest-${networkName}.json`);
-  fs.writeFileSync(latestPath, JSON.stringify(deploymentInfo, null, 2));
+  // Update src/config.ts
+  const configPath = path.join(__dirname, "../src/config.ts");
+  if (fs.existsSync(configPath)) {
+    let configContent = fs.readFileSync(configPath, "utf8");
+    
+    const newAddresses = `export const CONTRACT_ADDRESSES = {
+  USDT_TOKEN: "${usdtAddress}",
+  ARC_TOKEN: "${arcAddress}",
+  DES_TOKEN: "${desAddress}",
+  PROTOCOL: "${protocolAddress}"
+};`;
 
-  console.log("Deployment Complete!");
-  console.log("=".repeat(70));
-  console.log("📋 Contract Addresses:");
-  console.log(`   MC Token:         ${mcAddress}`);
-  console.log(`   JBC Token:        ${jbcAddress}`);
-  console.log(`   Jinbao Protocol:  ${protocolAddress}`);
+    configContent = configContent.replace(
+      /export const CONTRACT_ADDRESSES = \{[\s\S]*?\};/,
+      newAddresses
+    );
+    
+    fs.writeFileSync(configPath, configContent);
+    console.log("✅ Updated src/config.ts with new addresses");
+  } else {
+    console.warn("⚠️ src/config.ts not found");
+  }
+
   console.log("");
-  console.log("🔗 Verification Commands:");
-  console.log(`   MC Token:`);
-  console.log(`   npx hardhat verify --network ${networkName} ${mcAddress}`);
-  console.log("");
-  console.log(`   JBC Token:`);
-  console.log(`   npx hardhat verify --network ${networkName} ${jbcAddress} ${deployer.address}`);
-  console.log("");
-  console.log(`   Protocol:`);
-  console.log(`   npx hardhat verify --network ${networkName} ${protocolAddress} ${mcAddress} ${jbcAddress} ${marketingWallet} ${treasuryWallet} ${lpInjectionWallet} ${buybackWallet}`);
-  console.log("");
-  console.log("📄 Deployment info saved to:", filename);
-  console.log("🌐 Block Explorer:", networkConfig.explorer);
-  console.log("=".repeat(70));
+  console.log("✅ Deployment Complete!");
+  console.log("----------------------------------");
+  console.log("USDT (Mock):", usdtAddress);
+  console.log("ARC:", arcAddress);
+  console.log("DES (Mock):", desAddress);
+  console.log("Protocol:", protocolAddress);
+  console.log("----------------------------------");
 }
 
 main().catch((error) => {

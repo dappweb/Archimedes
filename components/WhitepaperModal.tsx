@@ -267,10 +267,10 @@ const WhitepaperModal: React.FC<WhitepaperModalProps> = ({ isOpen, onClose }) =>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    <tr><td className="p-3 font-bold">100 MC</td><td className="p-3">150 MC</td></tr>
-                                    <tr><td className="p-3 font-bold">300 MC</td><td className="p-3">450 MC</td></tr>
-                                    <tr><td className="p-3 font-bold">500 MC</td><td className="p-3">750 MC</td></tr>
-                                    <tr><td className="p-3 font-bold">1000 MC</td><td className="p-3">1500 MC</td></tr>
+                                    <tr><td className="p-3 font-bold">100 USDT</td><td className="p-3">150 USDT</td></tr>
+                                    <tr><td className="p-3 font-bold">300 USDT</td><td className="p-3">450 USDT</td></tr>
+                                    <tr><td className="p-3 font-bold">500 USDT</td><td className="p-3">750 USDT</td></tr>
+                                    <tr><td className="p-3 font-bold">1000 USDT</td><td className="p-3">1500 USDT</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -280,7 +280,7 @@ const WhitepaperModal: React.FC<WhitepaperModalProps> = ({ isOpen, onClose }) =>
                         <h4 className="font-bold text-slate-800 mb-2">3. Mining Rewards & Settlement</h4>
                         <ul className="list-disc pl-5 space-y-2">
                             <li><strong>Cycles:</strong> 7 Days (2.0%), 15 Days (2.5%), 30 Days (3.0%)</li>
-                            <li><strong>Settlement:</strong> 50% USDT (Coin-Based) + 50% JBC (Gold-Based)</li>
+                            <li><strong>Settlement:</strong> 50% USDT (Coin-Based) + 50% ARC (Gold-Based)</li>
                             <li><strong>Redemption:</strong> 1% Fee applies. Principal + Interest returned automatically upon maturity.</li>
                         </ul>
                     </div>

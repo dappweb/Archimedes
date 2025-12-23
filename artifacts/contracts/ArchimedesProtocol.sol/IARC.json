@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "IJBC",
-  "sourceName": "contracts/JinbaoProtocol.sol",
+  "contractName": "IARC",
+  "sourceName": "contracts/ArchimedesProtocol.sol",
   "abi": [
     {
       "anonymous": false,
