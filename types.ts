@@ -1,0 +1,35 @@
+export enum AppTab {
+  HOME = 'HOME',
+  MINING = 'MINING',
+  TEAM = 'TEAM',
+  SWAP = 'SWAP',
+  HISTORY = 'HISTORY',
+  ADMIN = 'ADMIN'
+}
+
+export interface MiningPlan {
+  days: number;
+  dailyRate: number; // Percentage (e.g., 2.0)
+}
+
+export interface TicketTier {
+  amount: number; // USDT Amount
+  requiredLiquidity: number; // USDT Amount
+}
+
+export interface UserStats {
+  balanceUSDT: number;
+  balanceJBC: number;
+  totalRevenue: number;
+  currentLevel: string;
+  teamCount: number;
+  activeInvestment: number; // Total value locked
+  pendingRewards: number;
+}
+
+export interface TeamLevel {
+  level: string;
+  countRequired: number;
+  reward: number; // Percentage
+  desc: string;
+}
