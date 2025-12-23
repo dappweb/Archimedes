@@ -540,25 +540,26 @@ const MiningPanel: React.FC = () => {
             {/* Left Col: Controls */}
             <div className="lg:col-span-2 space-y-4 md:space-y-6">
 
-            {/* Step 1: Ticket */}
-            <div className={`glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl relative overflow-hidden group transition-opacity bg-dark-card border border-dark-border ${isTicketBought || (!hasReferrer && !isOwner) ? 'opacity-50 pointer-events-none' : ''}`}>
+            {/* Step 1: Ticket - Only show if ticket is bought (read-only view) */}
+            {isTicketBought && (
+            <div className={`glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl relative overflow-hidden group transition-opacity bg-dark-card border border-dark-border ${(!hasReferrer && !isOwner) ? 'opacity-50 pointer-events-none' : ''}`}>
                 <div className="absolute top-0 right-0 w-24 h-24 bg-macoin-500/10 rounded-full blur-2xl group-hover:bg-macoin-500/20 transition-all"></div>
                 <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
                     <div className="p-1.5 md:p-2 bg-macoin-500/20 rounded-lg text-macoin-500">
                         <Zap size={18} className="md:w-5 md:h-5" />
                     </div>
-                    <h3 className="text-base md:text-lg font-bold text-white">{t.mining.step1} {isTicketBought && `(${t.mining.completed})`}</h3>
+                    <h3 className="text-base md:text-lg font-bold text-white">{t.mining.step1} ({t.mining.completed})</h3>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
                     {TICKET_TIERS.map((tier) => (
                         <button
                             key={tier.amount}
-                            onClick={() => setSelectedTicket(tier)}
-                            className={`relative py-3 md:py-4 rounded-lg md:rounded-xl border transition-all duration-300 flex flex-col items-center justify-center gap-0.5 md:gap-1 ${
+                            disabled
+                            className={`relative py-3 md:py-4 rounded-lg md:rounded-xl border transition-all duration-300 flex flex-col items-center justify-center gap-0.5 md:gap-1 cursor-default ${
                                 selectedTicket.amount === tier.amount
-                                ? 'bg-macoin-600 text-white border-macoin-500 shadow-lg shadow-macoin-500/20 transform scale-105 z-10'
-                                : 'bg-dark-card2 border-dark-border text-slate-400 hover:border-macoin-500/50 hover:bg-dark-card'
+                                ? 'bg-macoin-600 text-white border-macoin-500 shadow-lg shadow-macoin-500/20 z-10'
+                                : 'bg-dark-card2 border-dark-border text-slate-600 opacity-50'
                             }`}
                         >
                             <span className="text-lg md:text-xl font-bold">{tier.amount} USDT</span>
@@ -569,6 +570,7 @@ const MiningPanel: React.FC = () => {
                     ))}
                 </div>
             </div>
+            )}
 
             {/* Step 2: Cycle */}
             <div className={`glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl relative overflow-hidden group transition-opacity bg-dark-card border border-dark-border ${(!isTicketBought || isTicketExpired || hasActiveTicket || (!hasReferrer && !isOwner)) ? 'opacity-50 pointer-events-none' : ''}`}>

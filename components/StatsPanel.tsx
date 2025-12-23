@@ -255,7 +255,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
 
         <div className="relative z-10 p-6 md:p-12 w-full flex flex-col items-center">
           <div className="mb-6">
-            <h2 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+            <h2 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight drop-shadow-[0_0_20px_rgba(139,92,246,0.6)]">
               {displayStats.balanceUSDT.toLocaleString()} <span className="text-3xl md:text-4xl text-slate-400 font-bold">USDT</span>
             </h2>
             <p className="text-blue-400 font-bold text-lg md:text-xl mt-2 tracking-wide uppercase">My Total Assets</p>
