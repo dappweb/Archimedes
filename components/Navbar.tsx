@@ -230,7 +230,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
             <div className={`mt-7 text-center text-[10px] font-medium transition-colors ${
               currentTab === AppTab.SWAP ? "text-macoin-500" : "text-slate-500"
             }`}>
-              Swap
+              {t.nav.swap}
             </div>
           </button>
           <button

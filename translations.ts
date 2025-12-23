@@ -9,7 +9,8 @@ export const translations = {
       swap: '闪兑交易',
       history: '交易记录',
       connect: '连接钱包',
-      connected: '0x3A...8f22'
+      connected: '0x3A...8f22',
+      admin: '管理员'
     },
     stats: {
       protocol: '阿基米德协议',
@@ -26,7 +27,14 @@ export const translations = {
       chartTitle: 'ARC 价值走势',
       settlement: 'ARC + DES 双币驱动',
       today: '今日',
-      estValue: '预估价值'
+      estValue: '预估价值',
+      enterValidAddress: '请输入正确的钱包地址',
+      referrerBoundSuccess: '绑定推荐人成功！',
+      bindFailed: '绑定失败: ',
+      myTotalAssets: '我的总资产',
+      binding: '绑定中...',
+      loadFailedRetry: '加载失败 (重试)',
+      loadingPriceHistory: '加载价格历史中...'
     },
     referrer: {
       required: '需要绑定推荐人',
@@ -38,7 +46,10 @@ export const translations = {
       noReferrer: '您还未绑定推荐人，无法使用此功能',
       adminExempt: '管理员无需绑定推荐人',
       bound: '已绑定推荐人',
-      yourReferrer: '您的推荐人'
+      yourReferrer: '您的推荐人',
+      invalidAddress: '无效的地址格式！',
+      cannotBindSelf: '不能绑定自己作为推荐人！',
+      alreadyBound: '您已经绑定了推荐人！'
     },
     mining: {
       title: 'Archimedes 算力挖矿',
@@ -102,7 +113,15 @@ export const translations = {
       stakeSuccess: '参与成功！挖矿已开始',
       needApprove: '需要先授权 USDT 代币',
       approveSuccess: '授权成功！请再次点击参与',
-      expiredTicketWarning: '您有过期的订单，请联系管理员处理'
+      expiredTicketWarning: '您有过期的订单，请联系管理员处理',
+      approvingDES: '正在授权 DES 手续费...',
+      desApproved: 'DES 已授权',
+      insufficientDES: 'DES 余额不足以支付手续费！',
+      node: '节点',
+      requiredLiquidity: '需要: {amount} USDT 算力',
+      selected: '已选择',
+      select: '选择',
+      subscribe: '认购'
     },
     team: {
       title: 'V系列 极差裂变机制',
@@ -137,7 +156,16 @@ export const translations = {
       netRecent: '近期',
       netNone: '暂无直推成员',
       netShare: '分享您的链接以扩大团队！',
-      netTotalAmount: '直推总业绩'
+      netTotalAmount: '直推总业绩',
+      referralLinkCopied: '推荐链接已复制！',
+      connectWalletFirst: '请先连接钱包',
+      failedToCopy: '复制链接失败',
+      currentPlan: '当前计划',
+      activeUsers: '活跃用户',
+      unlocked: '已解锁',
+      locked: '未解锁',
+      link: '链接',
+      inactive: '未激活'
     },
     swap: {
       title: 'Archimedes 闪兑 (Swap)',
@@ -147,7 +175,20 @@ export const translations = {
       slipSell: '卖出税: ARC 5% / DES 3%',
       slipBuy: '买入税: 0%',
       confirm: '确认兑换',
-      poolLiquidity: '  LP总量'
+      poolLiquidity: '  LP总量',
+      notWhitelisted: '未在白名单',
+      notWhitelistedMsg: '您未在白名单中，无法购买 ARC！',
+      notWhitelistedDesc: '您无法购买 ARC。请联系管理员添加白名单。',
+      success: '兑换成功！',
+      failed: '兑换失败: ',
+      insufficientBalance: '余额不足。最大: ',
+      bindReferrerTip: '请先前往挖矿面板绑定推荐人',
+      tax5: '(5% 税)',
+      tax0: '(0% 税)',
+      active: '(生效中)',
+      poolUSDT: '池子流动性 (USDT)',
+      poolARC: '池子流动性 (ARC)',
+      connectWallet: '连接钱包'
     },
     admin: {
       title: '管理员控制面板',
@@ -192,7 +233,35 @@ export const translations = {
       activeDirects: '有效直推数',
       teamCount: '团队人数',
       updateUser: '更新用户信息',
-      updateReferrer: '更新绑定关系'
+      updateReferrer: '更新绑定关系',
+      failedPublish: '发布公告失败',
+      failedClear: '清空公告失败',
+      walletRequired: '必须填写平台钱包和 LP 钱包',
+      whitelistAdded: '已添加到白名单',
+      whitelistRemoved: '已从白名单移除',
+      officeSet: '社区办公室已设置',
+      officeRemoved: '社区办公室已移除',
+      connectWallet: '请先连接钱包',
+      usdtNotFound: '未找到 USDT 合约',
+      addedLiquidity: '已添加 {amount} {token} 到流动性池！',
+      arcNotFound: '未找到 ARC 合约',
+      whitelistManager: '白名单管理',
+      userAddressPlaceholder: '用户地址 (0x...)',
+      addWhitelist: '添加白名单',
+      remove: '移除',
+      communityOffice: '社区办公室',
+      officeAddressPlaceholder: '办公室地址 (0x...)',
+      setOffice: '设置办公室',
+      platformWallet: '平台钱包',
+      lpWallet: 'LP 钱包',
+      addPoolLiquidity: '添加流动性池 (仅管理员)',
+      liquidityDesc: '将钱包中的代币转入协议合约以添加兑换流动性。',
+      addUSDTLiquidity: '添加 USDT 流动性',
+      amountUSDT: 'USDT 数量',
+      addUSDTPool: '添加到 USDT 池',
+      addARCLiquidity: '添加 ARC 流动性',
+      amountARC: 'ARC 数量',
+      addARCPool: '添加到 ARC 池'
     },
     history: {
       title: '交易历史记录',
@@ -220,7 +289,8 @@ export const translations = {
       connectWallet: '请先连接钱包',
       connectWalletDesc: '连接钱包后即可查看您的交易历史记录',
       mySelf: '我的记录',
-      allUsers: '所有用户'
+      allUsers: '所有用户',
+      wrongNetwork: '网络错误'
     },
     footer: {
       rights: '© 2026 Archimedes Protocol. All rights reserved.',
@@ -235,7 +305,8 @@ export const translations = {
       swap: 'Swap',
       history: 'History',
       connect: 'Connect Wallet',
-      connected: '0x3A...8f22'
+      connected: '0x3A...8f22',
+      admin: 'Admin'
     },
     stats: {
       protocol: 'Archimedes Protocol',
@@ -252,7 +323,14 @@ export const translations = {
       chartTitle: 'ARC Value Trend',
       settlement: 'ARC + DES Dual Token',
       today: 'Today',
-      estValue: 'Est. Value'
+      estValue: 'Est. Value',
+      enterValidAddress: 'Please enter a valid wallet address',
+      referrerBoundSuccess: 'Referrer Bound Successfully!',
+      bindFailed: 'Bind Failed: ',
+      myTotalAssets: 'My Total Assets',
+      binding: 'Binding...',
+      loadFailedRetry: 'Load Failed (Retry)',
+      loadingPriceHistory: 'Loading price history...'
     },
     referrer: {
       required: 'Referrer Required',
@@ -264,7 +342,10 @@ export const translations = {
       noReferrer: 'You have not bound a referrer yet and cannot use this feature',
       adminExempt: 'Admin does not need to bind a referrer',
       bound: 'Referrer Bound',
-      yourReferrer: 'Your Referrer'
+      yourReferrer: 'Your Referrer',
+      invalidAddress: 'Invalid address format!',
+      cannotBindSelf: 'Cannot bind yourself as referrer!',
+      alreadyBound: 'You have already bound a referrer!'
     },
     mining: {
       title: 'Archimedes Hashrate Mining',
@@ -328,7 +409,15 @@ export const translations = {
       stakeSuccess: 'Success! Mining has started',
       needApprove: 'Need to approve USDT token',
       approveSuccess: 'Approval successful! Please click Join Now again',
-      expiredTicketWarning: 'You have an expired order, please contact admin'
+      expiredTicketWarning: 'You have an expired order, please contact admin',
+      approvingDES: 'Approving DES for Fee...',
+      desApproved: 'DES Approved',
+      insufficientDES: 'Insufficient DES for Fee!',
+      node: 'Node',
+      requiredLiquidity: 'Required: {amount} USDT Liquidity',
+      selected: 'Selected',
+      select: 'Select',
+      subscribe: 'Subscribe'
     },
     team: {
       title: 'V-Series Differential Mechanism',
@@ -363,7 +452,16 @@ export const translations = {
       netRecent: 'Recently',
       netNone: 'No direct referrals yet',
       netShare: 'Share your link to grow your team!',
-      netTotalAmount: 'Total Direct Sales'
+      netTotalAmount: 'Total Direct Sales',
+      referralLinkCopied: 'Referral Link Copied!',
+      connectWalletFirst: 'Connect Wallet First',
+      failedToCopy: 'Failed to copy link',
+      currentPlan: 'Current Plan',
+      activeUsers: 'Active Users',
+      unlocked: 'Unlocked',
+      locked: 'Locked',
+      link: 'Link',
+      inactive: 'Inactive'
     },
     swap: {
       title: 'Archimedes Swap',
@@ -373,7 +471,20 @@ export const translations = {
       slipSell: 'Sell Tax: ARC 5% / DES 3%',
       slipBuy: 'Buy Tax: 0%',
       confirm: 'Confirm Swap',
-      poolLiquidity: 'Pool Liquidity'
+      poolLiquidity: 'Pool Liquidity',
+      notWhitelisted: 'Not Whitelisted',
+      notWhitelistedMsg: 'You are not whitelisted to buy ARC!',
+      notWhitelistedDesc: 'You cannot buy ARC. Please contact admin to be whitelisted.',
+      success: 'Swap Successful!',
+      failed: 'Swap Failed: ',
+      insufficientBalance: 'Insufficient balance. Max: ',
+      bindReferrerTip: 'Please go to Mining panel to bind a referrer first',
+      tax5: '(5% Tax)',
+      tax0: '(0% Tax)',
+      active: '(Active)',
+      poolUSDT: 'Pool Liquidity (USDT)',
+      poolARC: 'Pool Liquidity (ARC)',
+      connectWallet: 'Connect Wallet'
     },
     admin: {
       title: 'Admin Control Panel',
@@ -418,7 +529,35 @@ export const translations = {
       activeDirects: 'Active Directs',
       teamCount: 'Team Count',
       updateUser: 'Update User Stats',
-      updateReferrer: 'Update Referrer'
+      updateReferrer: 'Update Referrer',
+      failedPublish: 'Failed to publish announcement',
+      failedClear: 'Failed to clear announcement',
+      walletRequired: 'Required: Platform & LP Wallet',
+      whitelistAdded: 'Added to Whitelist',
+      whitelistRemoved: 'Removed from Whitelist',
+      officeSet: 'Office Set',
+      officeRemoved: 'Office Removed',
+      connectWallet: 'Connect wallet first',
+      usdtNotFound: 'USDT contract not found',
+      addedLiquidity: 'Added {amount} {token} to pool!',
+      arcNotFound: 'ARC contract not found',
+      whitelistManager: 'Whitelist Manager',
+      userAddressPlaceholder: 'User Address (0x...)',
+      addWhitelist: 'Add Whitelist',
+      remove: 'Remove',
+      communityOffice: 'Community Office',
+      officeAddressPlaceholder: 'Office Address (0x...)',
+      setOffice: 'Set Office',
+      platformWallet: 'Platform Wallet',
+      lpWallet: 'LP Wallet',
+      addPoolLiquidity: 'Add Pool Liquidity (Admin Only)',
+      liquidityDesc: 'Transfer tokens from your wallet to the protocol contract to add liquidity for swaps.',
+      addUSDTLiquidity: 'Add USDT Liquidity',
+      amountUSDT: 'Amount in USDT',
+      addUSDTPool: 'Add USDT to Pool',
+      addARCLiquidity: 'Add ARC Liquidity',
+      amountARC: 'Amount in ARC',
+      addARCPool: 'Add ARC to Pool'
     },
     history: {
       title: 'Transaction History',
@@ -446,7 +585,8 @@ export const translations = {
       connectWallet: 'Connect Your Wallet',
       connectWalletDesc: 'Connect your wallet to view your transaction history',
       mySelf: 'My Records',
-      allUsers: 'All Users'
+      allUsers: 'All Users',
+      wrongNetwork: 'Wrong network'
     },
     footer: {
       rights: '© 2026 Archimedes Protocol. All rights reserved.',

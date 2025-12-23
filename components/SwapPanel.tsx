@@ -86,7 +86,7 @@ const SwapPanel: React.FC = () => {
           let tx;
 
           if (isSelling) {
-              // Sell ARC: Approve ARC -> SwapARCToMC
+              // Sell ARC: Approve ARC -> SwapARCToUSDT
               if (arcContract) {
                   const allowance = await arcContract.allowance(account, CONTRACT_ADDRESSES.PROTOCOL);
                   if (allowance < amount) {
@@ -94,9 +94,9 @@ const SwapPanel: React.FC = () => {
                       await approveTx.wait();
                   }
               }
-              tx = await protocolContract.swapARCToMC(amount);
+              tx = await protocolContract.swapARCToUSDT(amount);
           } else {
-              // Buy ARC: Check Whitelist -> Approve USDT -> SwapMCToARC
+              // Buy ARC: Check Whitelist -> Approve USDT -> SwapUSDTToARC
               if (!isWhitelisted) {
                   toast.error("You are not whitelisted to buy ARC!");
                   setIsLoading(false);
@@ -110,7 +110,7 @@ const SwapPanel: React.FC = () => {
                       await approveTx.wait();
                   }
               }
-              tx = await protocolContract.swapMCToARC(amount);
+              tx = await protocolContract.swapUSDTToARC(amount);
           }
           
           await tx.wait();

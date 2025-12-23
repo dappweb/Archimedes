@@ -186,7 +186,7 @@ const MiningPanel: React.FC = () => {
   };
 
   const handleBuyTicket = async () => {
-      if (!protocolContract || !mcContract) return;
+      if (!protocolContract || !usdtContract) return;
       
       // 检查是否有过期票据
       if (isTicketExpired) {
@@ -339,13 +339,13 @@ const MiningPanel: React.FC = () => {
 
       // 验证地址格式
       if (!ethers.isAddress(inputReferrerAddress)) {
-          toast.error('Invalid address format!');
+          toast.error(t.referrer.invalidAddress);
           return;
       }
 
       // 检查是否绑定自己
       if (inputReferrerAddress.toLowerCase() === account?.toLowerCase()) {
-          toast.error('Cannot bind yourself as referrer!');
+          toast.error(t.referrer.cannotBindSelf);
           return;
       }
 
@@ -361,7 +361,7 @@ const MiningPanel: React.FC = () => {
           console.error(err);
           const errorMsg = err.reason || err.message || '';
           if (errorMsg.includes('Already bound')) {
-              toast.error('You have already bound a referrer!');
+              toast.error(t.referrer.alreadyBound);
           } else {
               toast.error(`${t.referrer.bindError}: ${errorMsg}`);
           }

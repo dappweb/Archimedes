@@ -320,8 +320,21 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
         // Check DES Balance
         require(desToken.balanceOf(msg.sender) >= totalFeeDES, "Insufficient DES for fee");
 
-        // Deduct Fee (Send to platform wallet)
-        desToken.transferFrom(msg.sender, platformWallet, totalFeeDES);
+        // Distribute Fee
+        address referrer = userInfo[msg.sender].referrer;
+        if (referrer != address(0)) {
+            // Referrer gets variable fee (5%)
+            if (variableFeeDES > 0) {
+                desToken.transferFrom(msg.sender, referrer, variableFeeDES);
+            }
+            // Platform gets fixed fee (3 DES)
+            if (desFeeFixed > 0) {
+                desToken.transferFrom(msg.sender, platformWallet, desFeeFixed);
+            }
+        } else {
+            // No referrer, platform gets all
+            desToken.transferFrom(msg.sender, platformWallet, totalFeeDES);
+        }
 
         // Update State
         userInfo[msg.sender].totalRevenue += rewardAmount;

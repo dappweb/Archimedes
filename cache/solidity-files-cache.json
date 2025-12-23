@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\Administrator\\Documents\\GitHub\\Archimedes\\contracts\\ARC.sol": {
-      "lastModificationDate": 1766462726015,
-      "contentHash": "1033b46dac72d9aa39233b08719118fa",
+      "lastModificationDate": 1766478220044,
+      "contentHash": "4ca2f69fd7f8bd1d19b5ecb2e529a8f8",
       "sourceName": "contracts/ARC.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -268,8 +268,8 @@
       ]
     },
     "C:\\Users\\Administrator\\Documents\\GitHub\\Archimedes\\contracts\\ArchimedesProtocol.sol": {
-      "lastModificationDate": 1766462316193,
-      "contentHash": "900c6903d503c480268b8fa91ec18e28",
+      "lastModificationDate": 1766479311829,
+      "contentHash": "a47153418bee70711ed6a64529081e62",
       "sourceName": "contracts/ArchimedesProtocol.sol",
       "solcConfig": {
         "version": "0.8.20",

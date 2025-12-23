@@ -22,7 +22,7 @@ module.exports = {
     hardhat: {
     },
     sepolia: {
-      url: "https://ethereum-sepolia-rpc.publicnode.com", // More stable public RPC
+      url: "https://1rpc.io/sepolia", // More stable public RPC
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       timeout: 60000, // Increase timeout to 60 seconds
     },

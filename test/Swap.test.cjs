@@ -43,7 +43,7 @@ describe("Archimedes Protocol Swap System", function () {
     await arc.transfer(user1.address, ethers.parseEther("10000"));
   });
 
-  it("Should swap USDT to ARC with 50% tax", async function () {
+  it("Should swap USDT to ARC with 0% tax", async function () {
       // User has USDT, wants ARC
       const swapAmount = ethers.parseEther("100");
       

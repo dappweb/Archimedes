@@ -15,8 +15,8 @@ contract ARC is ERC20, Ownable {
     address public protocolAddress;
 
     // Taxes
-    uint256 public constant BUY_TAX = 50; // 50%
-    uint256 public constant SELL_TAX = 25; // 25%
+    uint256 public constant BUY_TAX = 0; // 0%
+    uint256 public constant SELL_TAX = 5; // 5%
 
     constructor(address initialOwner) ERC20("Archimedes Coin", "ARC") Ownable(initialOwner) {
         // Initial mint: 100 million

@@ -48,7 +48,7 @@ describe("Archimedes Protocol System", function () {
     });
 
     describe("Token Mechanics (ARC)", function () {
-      it("Should burn 50% on buy and 25% on sell", async function () {
+      it("Should have 0% tax on buy and 5% on sell", async function () {
         // Setup LP Pair
         await arc.setPair(lpPair.address);
         
@@ -57,13 +57,13 @@ describe("Archimedes Protocol System", function () {
         expect(await arc.balanceOf(user1.address)).to.equal(ethers.parseEther("1000"));
 
         // Simulate Sell (User1 -> Pair)
-        // Expect 25% tax
+        // Expect 5% tax
         await arc.connect(user1).transfer(lpPair.address, ethers.parseEther("100"));
-        // Recipient (Pair) should receive 75
-        expect(await arc.balanceOf(lpPair.address)).to.equal(ethers.parseEther("75"));
+        // Recipient (Pair) should receive 95
+        expect(await arc.balanceOf(lpPair.address)).to.equal(ethers.parseEther("95"));
         
         // Simulate Buy (Pair -> User2)
-        // Expect 50% tax
+        // Expect 0% tax
         // First fund Pair
         await arc.transfer(lpPair.address, ethers.parseEther("1000"));
         const initialUser2 = await arc.balanceOf(user2.address);
@@ -71,8 +71,8 @@ describe("Archimedes Protocol System", function () {
         // We need to simulate the pair calling transfer, so we impersonate or just use owner if owner was pair (but here lpPair is a signer)
         await arc.connect(lpPair).transfer(user2.address, ethers.parseEther("100"));
         
-        // User2 should receive 50
-        expect(await arc.balanceOf(user2.address)).to.equal(initialUser2 + ethers.parseEther("50"));
+        // User2 should receive 100
+        expect(await arc.balanceOf(user2.address)).to.equal(initialUser2 + ethers.parseEther("100"));
       });
     });
 
