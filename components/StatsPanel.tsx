@@ -247,35 +247,30 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
-      {/* Hero Section - Dark Theme */}
-      <div className="relative rounded-2xl md:rounded-3xl overflow-hidden min-h-[250px] md:min-h-[300px] flex items-center bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900 border border-purple-500/30 shadow-2xl">
-        {/* Texture Overlay */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-transparent"></div>
+      {/* Hero Section - User Dashboard Style */}
+      <div className="relative rounded-2xl md:rounded-3xl overflow-hidden min-h-[300px] flex items-center justify-center text-center bg-dark-card border border-dark-border shadow-2xl">
+        {/* Glow Effects */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-lg bg-hero-glow opacity-50 blur-3xl pointer-events-none"></div>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-overlay"></div>
 
-        <div className="relative z-10 p-5 sm:p-6 md:p-12 max-w-2xl w-full">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/10 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider mb-3 md:mb-4 border border-white/10 backdrop-blur-sm">
-            {t.stats.protocol}
+        <div className="relative z-10 p-6 md:p-12 w-full flex flex-col items-center">
+          <div className="mb-6">
+            <h2 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+              {displayStats.balanceUSDT.toLocaleString()} <span className="text-3xl md:text-4xl text-slate-400 font-bold">USDT</span>
+            </h2>
+            <p className="text-blue-400 font-bold text-lg md:text-xl mt-2 tracking-wide uppercase">My Total Assets</p>
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-extrabold text-white mb-3 md:mb-4 leading-tight drop-shadow-sm">
-            {t.stats.title} <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400 text-xl sm:text-2xl md:text-3xl lg:text-5xl">
-              {t.stats.subtitle}
-            </span>
-          </h1>
-          <p className="text-slate-300 text-sm sm:text-base md:text-lg mb-5 md:mb-8 max-w-lg font-medium">
-            {t.stats.desc}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md mx-auto">
             <button
               onClick={onJoinClick}
-              className="px-5 py-2.5 md:px-6 md:py-3 bg-primary-gradient hover:opacity-90 text-white font-bold rounded-lg shadow-xl shadow-purple-900/30 transition-all transform hover:-translate-y-1 text-sm md:text-base"
+              className="flex-1 py-4 bg-primary-gradient hover:opacity-90 text-white font-bold text-lg rounded-xl shadow-lg shadow-purple-900/30 transition-all transform hover:-translate-y-1"
             >
               {t.stats.join}
             </button>
             <button
               onClick={onWhitepaperClick}
-              className="px-5 py-2.5 md:px-6 md:py-3 bg-white/10 hover:bg-white/20 text-white border border-white/20 font-bold rounded-lg backdrop-blur-md transition-all text-sm md:text-base"
+              className="flex-1 py-4 bg-dark-card2 hover:bg-slate-800 text-white border border-slate-700 font-bold text-lg rounded-xl transition-all"
             >
               {t.stats.whitepaper}
             </button>
@@ -314,7 +309,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
                 value={referrer}
                 onChange={(e) => setReferrer(e.target.value)}
                 placeholder={t.team.bindPlaceholder}
-                className="w-full sm:w-48 md:w-64 px-3 py-2.5 md:px-4 md:py-3 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-macoin-500 text-white text-sm md:text-base"
+                className="w-full sm:w-48 md:w-64 px-3 py-2.5 md:px-4 md:py-3 bg-dark-card2 border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-macoin-500 text-white text-sm md:text-base"
               />
               <button
                 onClick={handleBind}
@@ -331,53 +326,64 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {/* Stat 1 */}
-        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <span className="text-slate-400 text-xs md:text-sm">{t.stats.assets}</span>
-            <Wallet className="text-macoin-500" size={18} />
+        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
+          <div className="flex items-center justify-between mb-3 md:mb-4 relative z-10">
+            <span className="text-slate-400 text-xs md:text-sm font-bold uppercase tracking-wider">{t.stats.assets}</span>
+            <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                <Wallet size={18} />
+            </div>
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+          <div className="text-2xl md:text-3xl font-bold text-white mb-1 relative z-10">
             {displayStats.balanceUSDT.toLocaleString()}
           </div>
         </div>
 
         {/* Stat 2 */}
-        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <span className="text-slate-400 text-xs md:text-sm">{t.stats.holding}</span>
-            <Coins className="text-macoin-500" size={18} />
+        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all"></div>
+          <div className="flex items-center justify-between mb-3 md:mb-4 relative z-10">
+            <span className="text-slate-400 text-xs md:text-sm font-bold uppercase tracking-wider">{t.stats.holding}</span>
+            <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+                <Coins size={18} />
+            </div>
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+          <div className="text-2xl md:text-3xl font-bold text-white mb-1 relative z-10">
             {displayStats.balanceARC.toLocaleString()}
           </div>
-          <div className="text-xs text-macoin-500 flex items-center gap-1">
+          <div className="text-xs text-macoin-400 flex items-center gap-1 relative z-10">
             ≈ {(displayStats.balanceARC * parseFloat(arcPrice)).toFixed(2)} USDT
-            <span className="text-slate-500 ml-1">(Price: {parseFloat(arcPrice).toFixed(4)})</span>
           </div>
         </div>
 
         {/* Stat 3 */}
-        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <span className="text-slate-400 text-xs md:text-sm">{t.stats.revenue}</span>
-            <TrendingUp className="text-blue-500" size={18} />
+        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-green-500/10 rounded-full blur-xl group-hover:bg-green-500/20 transition-all"></div>
+          <div className="flex items-center justify-between mb-3 md:mb-4 relative z-10">
+            <span className="text-slate-400 text-xs md:text-sm font-bold uppercase tracking-wider">{t.stats.revenue}</span>
+            <div className="p-2 bg-green-500/10 rounded-lg text-green-400">
+                <TrendingUp size={18} />
+            </div>
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+          <div className="text-2xl md:text-3xl font-bold text-white mb-1 relative z-10">
             {displayStats.totalRevenue.toLocaleString()}
           </div>
-          <div className="text-xs text-slate-500">{t.stats.settlement}</div>
+          <div className="text-xs text-slate-500 relative z-10">{t.stats.settlement}</div>
         </div>
 
         {/* Stat 4 */}
-        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <span className="text-slate-400 text-xs md:text-sm">{t.stats.level}</span>
-            <Users className="text-purple-500" size={18} />
+        <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-macoin-500/40 transition-colors bg-dark-card border border-dark-border relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-pink-500/10 rounded-full blur-xl group-hover:bg-pink-500/20 transition-all"></div>
+          <div className="flex items-center justify-between mb-3 md:mb-4 relative z-10">
+            <span className="text-slate-400 text-xs md:text-sm font-bold uppercase tracking-wider">{t.stats.level}</span>
+            <div className="p-2 bg-pink-500/10 rounded-lg text-pink-400">
+                <Users size={18} />
+            </div>
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-1">
+          <div className="text-2xl md:text-3xl font-bold text-white mb-1 relative z-10">
             {displayStats.currentLevel}
           </div>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-slate-500 relative z-10">
             {t.stats.teamCount}: {displayStats.teamCount}
           </div>
         </div>

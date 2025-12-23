@@ -30,13 +30,13 @@
                 bg: '#000000',
                 card: '#111111',
                 card2: '#1a1a1a',
-                border: '#333333',
+                border: '#2a2a2a',
               }
             },
             backgroundImage: {
-              'primary-gradient': 'linear-gradient(to right, #4f46e5, #9333ea)', // Indigo to Purple
-              'gold-gradient': 'linear-gradient(to right, #f59e0b, #fbbf24)', // Amber to Yellow
-              'blue-gradient': 'linear-gradient(to right, #3b82f6, #8b5cf6)', // Blue to Purple
+              'primary-gradient': 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', // Blue to Purple (Match screenshot)
+              'gold-gradient': 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)', // Amber to Yellow
+              'hero-glow': 'radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.15), rgba(0, 0, 0, 0))',
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
@@ -51,13 +51,19 @@
         background-color: #000000; /* Dark Background */
         color: #f8fafc; /* Slate 50 Text */
         font-family: 'Inter', sans-serif;
+        background-image: radial-gradient(circle at 50% 0%, rgba(29, 29, 41, 0.4), #000000 60%);
+        min-height: 100vh;
       }
       .glass-panel {
-        background: rgba(20, 20, 30, 0.8);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.5);
+        background: rgba(18, 18, 24, 0.7);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.6);
+      }
+      .glass-panel:hover {
+        border-color: rgba(139, 92, 246, 0.3);
+        box-shadow: 0 8px 32px -8px rgba(139, 92, 246, 0.15);
       }
       .neon-border {
          box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);

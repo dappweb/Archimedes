@@ -442,23 +442,37 @@ const MiningPanel: React.FC = () => {
             <p className="text-slate-400">{t.mining.step1}</p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mb-6 relative z-10">
+          <div className="space-y-3 md:space-y-4 mb-6 relative z-10">
             {TICKET_TIERS.map((tier) => (
-              <button
+              <div
                 key={tier.amount}
                 onClick={() => setSelectedTicket(tier)}
-                className={`relative py-4 md:py-6 rounded-xl border transition-all duration-300 flex flex-col items-center justify-center gap-1 ${
+                className={`relative p-4 rounded-xl border transition-all duration-300 flex items-center justify-between cursor-pointer group ${
                   selectedTicket.amount === tier.amount
-                    ? 'bg-macoin-600 text-white border-macoin-500 shadow-lg shadow-macoin-500/30 transform scale-105 z-10'
-                    : 'bg-dark-card2 border-dark-border text-slate-400 hover:border-macoin-500/50 hover:bg-dark-card'
+                    ? 'bg-dark-card2 border-macoin-500 shadow-lg shadow-macoin-500/20'
+                    : 'bg-dark-card border-dark-border hover:border-macoin-500/30 hover:bg-dark-card2'
                 }`}
               >
-                <span className="text-2xl md:text-3xl font-bold">{tier.amount}</span>
-                <span className="text-sm font-semibold">USDT</span>
-                <span className={`text-xs ${selectedTicket.amount === tier.amount ? 'text-white/90' : 'text-slate-500'}`}>
-                  +{tier.requiredLiquidity} {t.mining.liquidity}
-                </span>
-              </button>
+                {/* Left: Icon */}
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20">
+                        <div className="text-yellow-500 font-bold text-xl">⬢</div>
+                    </div>
+                    <div>
+                        <h4 className="text-white font-bold text-lg">{tier.amount} USDT Node</h4>
+                        <p className="text-slate-400 text-xs">Required: {tier.requiredLiquidity} USDT Liquidity</p>
+                    </div>
+                </div>
+
+                {/* Right: Button */}
+                <div className={`px-6 py-2 rounded-lg font-bold text-sm transition-all ${
+                    selectedTicket.amount === tier.amount
+                    ? 'bg-primary-gradient text-white shadow-md'
+                    : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700'
+                }`}>
+                    {selectedTicket.amount === tier.amount ? 'Selected' : 'Select'}
+                </div>
+              </div>
             ))}
           </div>
 
@@ -475,9 +489,9 @@ const MiningPanel: React.FC = () => {
               <button
                 onClick={handleBuyTicket}
                 disabled={txPending || isTicketExpired}
-                className="w-full py-4 md:py-5 bg-gold-gradient hover:opacity-90 text-white font-extrabold text-xl rounded-xl shadow-xl shadow-yellow-900/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 md:py-5 bg-primary-gradient hover:opacity-90 text-white font-extrabold text-xl rounded-xl shadow-xl shadow-purple-900/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {txPending ? t.mining.buying : `🎫 ${t.mining.buyTicket} - ${selectedTicket.amount} USDT`}
+                {txPending ? t.mining.buying : `Subscribe ${selectedTicket.amount} USDT Node`}
               </button>
             )}
           </div>
