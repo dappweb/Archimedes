@@ -50,7 +50,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
                 </div>
               )}
               <span className="text-lg md:text-2xl font-black text-white tracking-tight">
-                Archimedes <span className="text-macoin-500">Protocol</span>
+                Archimedes <span className="hidden sm:inline text-macoin-500">Protocol</span>
               </span>
             </div>
 
@@ -110,16 +110,14 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
 
             {/* Wallet & Language & Mobile Menu */}
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Desktop Language Switcher */}
-              <div className="hidden md:block">
-                <button
-                  onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
-                  className="p-2 rounded-lg bg-dark-card hover:bg-dark-card2 text-slate-400 hover:text-white transition-colors border border-dark-border"
-                  title="Switch Language"
-                >
-                  <Globe size={20} />
-                </button>
-              </div>
+              {/* Language Switcher (Desktop & Mobile) */}
+              <button
+                onClick={() => setLanguage(language === 'en' ? 'zh' : 'en')}
+                className="p-2 rounded-lg bg-dark-card hover:bg-dark-card2 text-slate-400 hover:text-white transition-colors border border-dark-border"
+                title="Switch Language"
+              >
+                <Globe size={18} className="md:w-5 md:h-5" />
+              </button>
 
               <ConnectButton.Custom>
                 {({

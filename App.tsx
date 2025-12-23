@@ -63,7 +63,7 @@ const AppContent: React.FC = () => {
 
       <WhitepaperModal isOpen={showWhitepaper} onClose={() => setShowWhitepaper(false)} />
 
-      <main className="pt-20 px-3 sm:px-4 md:pt-24 md:px-6 lg:px-8 mb-16 md:mb-0">
+      <main className="pt-20 px-4 sm:px-6 md:pt-24 md:px-8 lg:px-12 mb-20 md:mb-0 max-w-7xl mx-auto">
         {/* Render Tab Content */}
         {currentTab === AppTab.HOME && (
           <StatsPanel

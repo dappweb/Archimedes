@@ -380,27 +380,32 @@ const MiningPanel: React.FC = () => {
 
       {/* 推荐人绑定提示 - 非管理员且未绑定推荐人时显示 */}
       {isConnected && !hasReferrer && !isOwner && (
-        <div className="bg-amber-900/20 border border-amber-500/30 rounded-xl p-6 animate-fade-in">
-          <div className="flex items-start gap-3 mb-4">
-            <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={24} />
-            <div className="flex-1">
-              <p className="font-bold text-amber-400 text-lg mb-2">⚠️ {t.referrer.required}</p>
-              <p className="text-sm text-amber-200/80 mb-4">
+        <div className="bg-gradient-to-br from-amber-900/20 to-black/40 border border-amber-500/30 rounded-2xl p-5 md:p-6 animate-fade-in backdrop-blur-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-start gap-4">
+            <div className="p-3 bg-amber-500/10 rounded-xl shrink-0">
+                <AlertCircle className="text-amber-500" size={24} />
+            </div>
+            
+            <div className="flex-1 w-full">
+              <h3 className="font-bold text-amber-400 text-lg mb-2">{t.referrer.required}</h3>
+              <p className="text-sm text-amber-100/70 mb-4 leading-relaxed">
                 {t.referrer.requiredDesc}
               </p>
 
-              <div className="bg-dark-bg rounded-lg p-4 border border-amber-500/20">
+              <div className="bg-black/40 rounded-xl p-1.5 border border-amber-500/20 flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
                   value={inputReferrerAddress}
                   onChange={(e) => setInputReferrerAddress(e.target.value)}
                   placeholder={t.referrer.enterAddress}
-                  className="w-full px-4 py-3 bg-dark-card border border-dark-border rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-amber-500 text-white text-sm placeholder:text-slate-500"
+                  className="w-full px-4 py-3 bg-transparent border-none focus:outline-none text-white text-sm placeholder:text-slate-500"
                 />
                 <button
                   onClick={handleBindReferrer}
                   disabled={isBindingReferrer || !inputReferrerAddress}
-                  className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-bold rounded-lg transition-all shadow-lg shadow-amber-900/20 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                 >
                   {isBindingReferrer ? t.referrer.binding : t.referrer.bind}
                 </button>
