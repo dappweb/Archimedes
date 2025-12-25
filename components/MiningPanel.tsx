@@ -29,6 +29,7 @@ const MiningPanel: React.FC = () => {
   const [desAllowance, setDesAllowance] = useState<bigint>(0n);
   const [desFeeFixed, setDesFeeFixed] = useState<bigint>(0n);
   const [desFeeRate, setDesFeeRate] = useState<bigint>(0n);
+  const [pendingRewards, setPendingRewards] = useState<bigint>(0n);
 
   const { t } = useLanguage();
   const { protocolContract, usdtContract, desContract, arcContract, account, isConnected, hasReferrer, isOwner, referrerAddress, checkReferrerStatus } = useWeb3();
@@ -87,6 +88,21 @@ const MiningPanel: React.FC = () => {
     };
     fetchDesData();
   }, [protocolContract, desContract, account, txPending]); // Refresh on tx finish
+
+  // Fetch Pending Rewards
+  useEffect(() => {
+    const fetchRewards = async () => {
+        if (protocolContract && account) {
+            try {
+                const rewards = await protocolContract.pendingRewards(account);
+                setPendingRewards(rewards);
+            } catch (e) {
+                console.error("Failed to fetch pending rewards", e);
+            }
+        }
+    };
+    fetchRewards();
+  }, [protocolContract, account, txPending]);
 
   // Calculations based on PDF logic
   const totalInvestment = selectedTicket.amount + selectedTicket.requiredLiquidity;
@@ -418,6 +434,39 @@ const MiningPanel: React.FC = () => {
       }
   };
 
+  const handleClaimRewards = async () => {
+      if (!protocolContract || !desContract) return;
+      
+      setTxPending(true);
+      try {
+          // Check DES Allowance for Fee
+          // If allowance is low, approve Max.
+          if (desAllowance < ethers.parseEther("1000")) { // Safe threshold
+             toast(t.rewards.approveDes, { icon: 'ℹ️' });
+             const tx = await desContract.approve(await protocolContract.getAddress(), ethers.MaxUint256);
+             await tx.wait();
+             setDesAllowance(ethers.MaxUint256);
+             toast.success(t.rewards.desApproved);
+          }
+
+          toast(t.rewards.claimingRewards, { icon: '⏳' });
+          const tx = await protocolContract.claimRewards();
+          await tx.wait();
+          toast.success(t.rewards.rewardsClaimed);
+          setPendingRewards(0n);
+      } catch (e: any) {
+          console.error("Claim failed", e);
+          const msg = e.reason || e.message || "";
+          if (msg.includes("Insufficient DES")) {
+              toast.error(t.rewards.insufficientDES || "Insufficient DES for Fee"); 
+          } else {
+             toast.error(`${t.rewards.claimFailed || "Claim Failed"}: ${msg}`);
+          }
+      } finally {
+          setTxPending(false);
+      }
+  };
+
   const handleBindReferrer = async () => {
       if (!protocolContract || !inputReferrerAddress) return;
 
@@ -519,6 +568,48 @@ const MiningPanel: React.FC = () => {
           <div className="flex-1">
             <p className="font-bold text-purple-400">👑 {t.referrer.adminExempt}</p>
           </div>
+        </div>
+      )}
+
+      {/* Rewards Section */}
+      {isConnected && (hasReferrer || isOwner) && (
+        <div className="bg-gradient-to-br from-indigo-900/30 to-black/40 border border-indigo-500/30 rounded-2xl p-6 relative overflow-hidden backdrop-blur-sm animate-fade-in">
+           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-50"></div>
+           <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+              <div className="flex items-center gap-4 w-full md:w-auto">
+                  <div className="p-4 bg-indigo-500/20 rounded-full shrink-0">
+                      <Coins className="text-indigo-400" size={32} />
+                  </div>
+                  <div>
+                      <h3 className="text-lg text-slate-300 font-medium">{t.rewards.title}</h3>
+                      <div className="flex items-baseline gap-2">
+                         <span className="text-3xl font-bold text-white tracking-tight">{ethers.formatEther(pendingRewards)}</span>
+                         <span className="text-indigo-400 font-bold">ARC</span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                        <Clock size={12} /> {t.rewards.pendingRewards}
+                      </p>
+                  </div>
+              </div>
+
+              <div className="flex flex-col items-end gap-2 w-full md:w-auto">
+                   <button
+                      onClick={handleClaimRewards}
+                      disabled={pendingRewards === 0n || txPending}
+                      className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-900/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-indigo-500/20"
+                   >
+                      {txPending ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                      ) : (
+                          <Download size={18} />
+                      )}
+                      {t.rewards.claimRewards}
+                   </button>
+                   <p className="text-xs text-slate-500 max-w-[250px] text-right">
+                      {t.rewards.feeNotice}
+                   </p>
+              </div>
+           </div>
         </div>
       )}
 

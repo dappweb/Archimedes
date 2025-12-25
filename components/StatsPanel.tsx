@@ -43,10 +43,10 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
         setLoadingPriceHistory(true)
         setFetchError(false)
         const currentBlock = await provider.getBlockNumber()
-        const fromBlock = Math.max(0, currentBlock - 100000) // Last ~100k blocks
+        const fromBlock = Math.max(0, currentBlock - 20000) // Last ~20k blocks (Reduced from 100k for performance)
 
         // Query both swap events
-        const [mcToJbcEvents, jbcToMcEvents] = await Promise.all([
+        const [usdtToArcEvents, arcToUsdtEvents] = await Promise.all([
           protocolContract.queryFilter(protocolContract.filters.SwappedMCToJBC(), fromBlock),
           protocolContract.queryFilter(protocolContract.filters.SwappedJBCToMC(), fromBlock),
         ])
@@ -150,18 +150,18 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
 
   useEffect(() => {
     const fetchData = async () => {
-      if (isConnected && account && mcContract && jbcContract && protocolContract) {
+      if (isConnected && account && usdtContract && arcContract && protocolContract) {
         try {
-          // Fetch MC Balance
-          const mcBal = await mcContract.balanceOf(account)
+          // Fetch USDT Balance
+          const usdtBal = await usdtContract.balanceOf(account)
 
-          // Fetch JBC Balance
-          const jbcBal = await jbcContract.balanceOf(account)
+          // Fetch ARC Balance
+          const arcBal = await arcContract.balanceOf(account)
 
-          // Fetch JBC Price from Contract (Spot Price)
+          // Fetch ARC Price from Contract (Spot Price)
           try {
-            const priceWei = await protocolContract.getJBCPrice()
-            setJbcPrice(ethers.formatEther(priceWei))
+            const priceWei = await protocolContract.getARCPrice()
+            setArcPrice(ethers.formatEther(priceWei))
           } catch (e) {
             console.log("Price fetch failed (maybe old contract)", e)
           }
@@ -390,7 +390,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
       </div>
 
       {/* Chart Section */}
-      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border">
+      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border min-h-[400px]">
         <h3 className="text-base md:text-lg font-bold mb-4 md:mb-6 text-white border-l-4 border-macoin-500 pl-3 flex justify-between items-center">
           {t.stats.chartTitle}
           {fetchError && (
@@ -398,19 +398,28 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
               onClick={() => window.location.reload()} 
               className="text-xs text-red-500 hover:text-red-400 underline"
             >
-              Load Failed (Retry)
+               {t.stats.loadFailedRetry}
             </button>
           )}
         </h3>
-        {loadingPriceHistory ? (
-          <div className="h-[200px] sm:h-[250px] md:h-[300px] w-full flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-macoin-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-sm text-slate-400">Loading price history...</p>
+        
+        <div className="h-[300px] w-full">
+          {loadingPriceHistory ? (
+            <div className="w-full h-full flex items-center justify-center bg-dark-card2/50 rounded-xl animate-pulse">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 border-4 border-macoin-500/30 border-t-macoin-500 rounded-full animate-spin"></div>
+                    <span className="text-slate-500 text-sm font-medium">{t.stats.loadingPriceHistory}</span>
+                </div>
             </div>
-          </div>
-        ) : (
-          <div className="h-[200px] sm:h-[250px] md:h-[300px] w-full min-h-[200px]" style={{ minHeight: '200px' }}>
+          ) : priceHistory.length <= 1 ? (
+             <div className="w-full h-full flex flex-col items-center justify-center bg-dark-card2/30 rounded-xl border border-dashed border-slate-700">
+                <div className="p-4 bg-slate-800/50 rounded-full mb-3">
+                   <TrendingUp className="text-slate-500 w-8 h-8" />
+                </div>
+                <p className="text-slate-400 font-medium">No price history available yet</p>
+                <p className="text-slate-600 text-xs mt-1">Transactions will appear here</p>
+             </div>
+          ) : (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={priceHistory}>
                 <defs>
@@ -419,31 +428,42 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ stats: initialStats, onJoinClic
                     <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                <XAxis dataKey="name" stroke="#64748b" />
-                <YAxis stroke="#64748b" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1e1e2e",
-                    borderColor: "#333",
-                    color: "#fff",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.5)",
-                  }}
-                  itemStyle={{ color: "#a78bfa" }}
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                <XAxis 
+                    dataKey="name" 
+                    stroke="#475569" 
+                    tick={{ fontSize: 12 }}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickLine={false}
                 />
-                <Area
-                  type="monotone"
-                  dataKey="uv"
-                  stroke="#8b5cf6"
-                  strokeWidth={3}
-                  fillOpacity={1}
-                  fill="url(#colorUv)"
+                <YAxis 
+                    stroke="#475569" 
+                    tick={{ fontSize: 12 }}
+                    tickFormatter={(value) => value.toFixed(2)}
+                    axisLine={false}
+                    tickLine={false}
+                    domain={['auto', 'auto']}
+                />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#0f172a", borderColor: "#334155", borderRadius: "8px", color: "#fff" }}
+                  itemStyle={{ color: "#fff" }}
+                  formatter={(value: number) => [value.toFixed(4) + " USDT", "Price"]}
+                  labelStyle={{ color: "#94a3b8", marginBottom: "0.5rem" }}
+                />
+                <Area 
+                    type="monotone" 
+                    dataKey="uv" 
+                    stroke="#8b5cf6" 
+                    strokeWidth={3}
+                    fillOpacity={1} 
+                    fill="url(#colorUv)" 
+                    activeDot={{ r: 6, strokeWidth: 0, fill: "#fff" }}
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )

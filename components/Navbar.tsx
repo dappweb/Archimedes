@@ -162,7 +162,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
                         if (chain.unsupported) {
                           return (
                             <button onClick={openChainModal} type="button" className="bg-red-500 text-white font-bold py-2 px-3 md:px-5 rounded-lg md:rounded-xl shadow-lg hover:shadow-xl transition-all text-xs md:text-sm">
-                              Wrong network
+                              {t.history.wrongNetwork}
                             </button>
                           );
                         }
@@ -192,7 +192,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
       </nav>
 
       {/* Mobile Navigation Bar (Bottom) - Moved outside nav to ensure correct stacking */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/5 md:hidden safe-area-bottom z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/5 md:hidden pb-safe z-[100] shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
         <div className="grid grid-cols-5 h-[60px] items-center">
           <button
             onClick={() => setTab(AppTab.HOME)}

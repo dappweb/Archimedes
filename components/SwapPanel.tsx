@@ -287,14 +287,27 @@ const SwapPanel: React.FC = () => {
                     <span className="truncate ml-2">{t.swap.balance}: {isSelling ? balanceToken : balanceUSDT} {isSelling ? selectedToken : 'USDT'}</span>
                 </div>
                 <div className="flex items-center justify-between gap-2">
-                    <input
-                        type="number"
-                        value={payAmount}
-                        onChange={(e) => handleInput(e.target.value)}
-                        placeholder="0.0"
-                        className="bg-transparent text-xl md:text-2xl font-bold focus:outline-none w-full text-white"
-                    />
-                    <span className={`px-2 md:px-3 py-1 rounded-lg font-bold border border-dark-border shadow-sm text-sm md:text-base whitespace-nowrap ${isSelling ? (selectedToken === 'ARC' ? 'bg-macoin-500/20 text-macoin-500' : 'bg-amber-500/20 text-amber-500') : 'bg-dark-card text-slate-300'}`}>
+                    <div className="flex-1 flex flex-col">
+                        <input
+                            type="number"
+                            value={payAmount}
+                            onChange={(e) => handleInput(e.target.value)}
+                            placeholder="0.0"
+                            className="bg-transparent text-xl md:text-2xl font-bold focus:outline-none w-full text-white"
+                        />
+                        <div className="flex items-center justify-between mt-1">
+                             <div className="text-xs text-slate-500">
+                                 ≈ $ {payAmount ? payAmount : '0.00'}
+                             </div>
+                             <button 
+                                onClick={() => handleInput(isSelling ? balanceToken : balanceUSDT)}
+                                className="text-xs bg-dark-card border border-dark-border px-2 py-0.5 rounded text-macoin-400 hover:text-macoin-300 hover:border-macoin-500 transition-colors uppercase font-bold"
+                             >
+                                Max
+                             </button>
+                        </div>
+                    </div>
+                    <span className={`px-2 md:px-3 py-1 rounded-lg font-bold border border-dark-border shadow-sm text-sm md:text-base whitespace-nowrap self-start mt-1 ${isSelling ? (selectedToken === 'ARC' ? 'bg-macoin-500/20 text-macoin-500' : 'bg-amber-500/20 text-amber-500') : 'bg-dark-card text-slate-300'}`}>
                         {isSelling ? selectedToken : 'USDT'}
                     </span>
                 </div>

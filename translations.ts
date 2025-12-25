@@ -133,6 +133,18 @@ export const translations = {
       reinvestBtn: '复投 (50% ARC)',
       principalOnly: '(仅本金)'
     },
+    rewards: {
+      title: '我的收益',
+      pendingRewards: '待领取收益',
+      claimRewards: '提取收益',
+      claimingRewards: '提取中...',
+      rewardsClaimed: '提取成功！',
+      noRewardsToClaim: '暂无收益可提取',
+      feeNotice: '提取需支付 DES 手续费 (5% + 3 DES)',
+      desBalance: 'DES 余额',
+      desAllowance: 'DES 授权',
+      approveDes: '授权 DES'
+    },
     team: {
       title: 'V系列 极差裂变机制',
       subtitle: '推广有效地址，获取丰厚极差收益',

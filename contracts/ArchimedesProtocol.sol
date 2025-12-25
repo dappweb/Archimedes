@@ -76,6 +76,8 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
     mapping(address => Ticket) public userTicket;
     mapping(address => address[]) public directReferrals; // Stores list of direct referrals for each user
     
+    mapping(address => uint256) public pendingRewards; // Accumulated rewards for daily settlement
+
     // Daily Burn
     uint256 public lastBurnTime;
 
@@ -333,33 +335,18 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
         emit Reinvested(msg.sender, usdtPart, arcAmount, cycleDays);
     }
 
+    // --- Daily Settlement (Admin/Script) ---
+    function distributeDailyRewards(address[] calldata users, uint256[] calldata amounts) external onlyOwner {
+        require(users.length == amounts.length, "Length mismatch");
+        for (uint256 i = 0; i < users.length; i++) {
+            pendingRewards[users[i]] += amounts[i];
+        }
+    }
+
     // --- Redemption & Claims ---
 
     function claimRewards() external nonReentrant {
-        Ticket storage ticket = userTicket[msg.sender];
-        require(ticket.liquidityProvided && !ticket.redeemed, "Not active");
-
-        // Calculate Rate
-        uint256 dailyRate = 0;
-        if (ticket.cycleDays == 7) dailyRate = 20; // 2.0% (div 1000)
-        else if (ticket.cycleDays == 15) dailyRate = 25; // 2.5%
-        else if (ticket.cycleDays == 30) dailyRate = 30; // 3.0%
-
-        uint256 daysPassed = (block.timestamp - ticket.startTime) / SECONDS_IN_DAY;
-        require(daysPassed > 0, "No rewards yet");
-
-        // Limit to cycle days
-        if (daysPassed > ticket.cycleDays) {
-            daysPassed = ticket.cycleDays;
-        }
-
-        uint256 rewardAmount = (ticket.amount * dailyRate * daysPassed) / 1000;
-        
-        // Cap Check (3x)
-        if (userInfo[msg.sender].totalRevenue + rewardAmount > userInfo[msg.sender].currentCap) {
-            rewardAmount = userInfo[msg.sender].currentCap - userInfo[msg.sender].totalRevenue;
-        }
-
+        uint256 rewardAmount = pendingRewards[msg.sender];
         require(rewardAmount > 0, "No rewards to claim");
 
         // FEE CHECK (Section 6)
@@ -369,7 +356,11 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
         require(desPrice > 0, "Invalid DES price");
 
         // Fee Value in USDT = rewardAmount * 5%
-        uint256 feeValueUSDT = (rewardAmount * desFeeRate) / 100;
+        // Note: rewardAmount is ARC. Need ARC Price.
+        uint256 arcPrice = getARCPrice();
+        uint256 rewardValueUSDT = (rewardAmount * arcPrice) / 1e18;
+
+        uint256 feeValueUSDT = (rewardValueUSDT * desFeeRate) / 100;
         
         // Fee in DES = (feeValueUSDT * 1e18) / desPrice
         uint256 variableFeeDES = (feeValueUSDT * 1e18) / desPrice;
@@ -395,24 +386,17 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
         }
 
         // Update State
-        userInfo[msg.sender].totalRevenue += rewardAmount;
+        pendingRewards[msg.sender] = 0; // Reset pending
+        // Cap Check (3x) - Update total revenue
+        // Note: This logic should ideally be checked BEFORE adding to pendingRewards in backend script
+        // But we track it here too
+        userInfo[msg.sender].totalRevenue += rewardValueUSDT; 
 
-        // Split 50/50
-        uint256 usdtPart = rewardAmount / 2;
-        uint256 arcValuePart = rewardAmount / 2;
+        // Transfer ARC
+        require(arcToken.balanceOf(address(this)) >= rewardAmount, "Insufficient ARC in pool");
+        arcToken.transfer(msg.sender, rewardAmount);
 
-        require(usdtToken.balanceOf(address(this)) >= usdtPart, "Insufficient USDT in pool");
-        usdtToken.transfer(msg.sender, usdtPart);
-
-        // ARC Transfer
-        uint256 arcPrice = getARCPrice();
-        if (arcPrice == 0) arcPrice = 1 ether; // Fallback
-        uint256 arcAmount = (arcValuePart * 1 ether) / arcPrice;
-        
-        require(arcToken.balanceOf(address(this)) >= arcAmount, "Insufficient ARC in pool");
-        arcToken.transfer(msg.sender, arcAmount);
-
-        emit RewardClaimed(msg.sender, usdtPart, arcAmount);
+        emit RewardClaimed(msg.sender, 0, rewardAmount);
     }
 
     function getARCPrice() public view returns (uint256) {

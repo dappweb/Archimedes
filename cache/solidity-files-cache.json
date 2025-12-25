@@ -268,8 +268,8 @@
       ]
     },
     "C:\\Users\\Administrator\\Documents\\GitHub\\Archimedes\\contracts\\ArchimedesProtocol.sol": {
-      "lastModificationDate": 1766648742123,
-      "contentHash": "57dc3df624269ccc06c3fc3266ee9a2b",
+      "lastModificationDate": 1766659481169,
+      "contentHash": "bf23953e1ff0fce00a2f218312e6d01a",
       "sourceName": "contracts/ArchimedesProtocol.sol",
       "solcConfig": {
         "version": "0.8.20",
