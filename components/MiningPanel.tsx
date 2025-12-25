@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { TICKET_TIERS, MINING_PLANS } from '../constants';
 import { MiningPlan, TicketTier } from '../types';
-import { Zap, Clock, TrendingUp, AlertCircle, ArrowRight, ShieldCheck, Lock } from 'lucide-react';
+import { Zap, Clock, TrendingUp, AlertCircle, ArrowRight, ShieldCheck, Lock, Coins, Download } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { useWeb3 } from '../Web3Context';
 import { ethers } from 'ethers';
@@ -316,6 +316,67 @@ const MiningPanel: React.FC = () => {
   };
 
   const handleReinvest = async () => {
+      if (!protocolContract || !usdtContract || !arcContract) return;
+      setTxPending(true);
+      try {
+          // Total required value (USDT terms)
+          const requiredValue = ethers.parseEther(selectedTicket.requiredLiquidity.toString());
+          const usdtPart = requiredValue / 2n;
+          const arcValuePart = requiredValue / 2n;
+
+          // Calculate ARC needed
+          // ARC Amount = (Value * 1e18) / Price
+          // Ensure arcPrice is valid
+          if (!arcPrice || arcPrice === 0n) {
+             toast.error(t.mining.invalidARCPrice);
+             return;
+          }
+          const arcPart = (arcValuePart * ethers.parseEther("1")) / arcPrice;
+
+          // Check Balances
+          const usdtBal = await usdtContract.balanceOf(account);
+          const arcBal = await arcContract.balanceOf(account);
+
+          if (usdtBal < usdtPart || arcBal < arcPart) {
+              toast.error(t.mining.insufficientReinvest);
+              return;
+          }
+
+          // Check Allowances
+          const protocolAddr = await protocolContract.getAddress();
+          const usdtAllow = await usdtContract.allowance(account, protocolAddr);
+          const arcAllow = await arcContract.allowance(account, protocolAddr);
+
+          if (usdtAllow < usdtPart) {
+              toast(t.mining.approvingUSDT);
+              const tx = await usdtContract.approve(protocolAddr, ethers.MaxUint256);
+              await tx.wait();
+              toast.success(t.mining.usdtApproved);
+          }
+
+          if (arcAllow < arcPart) {
+              toast(t.mining.approvingARC);
+              const tx = await arcContract.approve(protocolAddr, ethers.MaxUint256);
+              await tx.wait();
+              toast.success(t.mining.arcApproved);
+          }
+
+          // Execute Reinvest
+          const tx = await protocolContract.reinvest(selectedPlan.days);
+          await tx.wait();
+
+          toast.success(t.mining.reinvestSuccess);
+          await checkTicketStatus();
+
+      } catch (err: any) {
+          console.error(t.mining.reinvestFailed, err);
+          toast.error(`${t.mining.reinvestFailed}: ${err.reason || err.message}`);
+      } finally {
+          setTxPending(false);
+      }
+  };
+
+  const handleReinvest = async () => {
     if (!protocolContract || !usdtContract || !arcContract) return;
     setTxPending(true);
     try {
@@ -573,43 +634,83 @@ const MiningPanel: React.FC = () => {
 
       {/* Rewards Section */}
       {isConnected && (hasReferrer || isOwner) && (
-        <div className="bg-gradient-to-br from-indigo-900/30 to-black/40 border border-indigo-500/30 rounded-2xl p-6 relative overflow-hidden backdrop-blur-sm animate-fade-in">
-           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-50"></div>
-           <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-              <div className="flex items-center gap-4 w-full md:w-auto">
-                  <div className="p-4 bg-indigo-500/20 rounded-full shrink-0">
-                      <Coins className="text-indigo-400" size={32} />
-                  </div>
-                  <div>
-                      <h3 className="text-lg text-slate-300 font-medium">{t.rewards.title}</h3>
-                      <div className="flex items-baseline gap-2">
-                         <span className="text-3xl font-bold text-white tracking-tight">{ethers.formatEther(pendingRewards)}</span>
-                         <span className="text-indigo-400 font-bold">ARC</span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                        <Clock size={12} /> {t.rewards.pendingRewards}
-                      </p>
-                  </div>
-              </div>
+        <div className="space-y-4">
+            {/* Standard Mining Rewards */}
+            <div className="bg-gradient-to-br from-indigo-900/30 to-black/40 border border-indigo-500/30 rounded-2xl p-6 relative overflow-hidden backdrop-blur-sm animate-fade-in">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-50"></div>
+                <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                    <div className="flex items-center gap-4 w-full md:w-auto">
+                        <div className="p-4 bg-indigo-500/20 rounded-full shrink-0">
+                            <Coins className="text-indigo-400" size={32} />
+                        </div>
+                        <div>
+                            <h3 className="text-lg text-slate-300 font-medium">{t.rewards.title}</h3>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-3xl font-bold text-white tracking-tight">{ethers.formatEther(pendingRewards)}</span>
+                                <span className="text-indigo-400 font-bold">ARC</span>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                                <Clock size={12} /> {t.rewards.pendingRewards}
+                            </p>
+                        </div>
+                    </div>
 
-              <div className="flex flex-col items-end gap-2 w-full md:w-auto">
-                   <button
-                      onClick={handleClaimRewards}
-                      disabled={pendingRewards === 0n || txPending}
-                      className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-900/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-indigo-500/20"
-                   >
-                      {txPending ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                      ) : (
-                          <Download size={18} />
-                      )}
-                      {t.rewards.claimRewards}
-                   </button>
-                   <p className="text-xs text-slate-500 max-w-[250px] text-right">
-                      {t.rewards.feeNotice}
-                   </p>
-              </div>
-           </div>
+                    <div className="flex flex-col items-end gap-2 w-full md:w-auto">
+                        <button
+                            onClick={handleClaimRewards}
+                            disabled={pendingRewards === 0n || txPending}
+                            className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-900/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-indigo-500/20"
+                        >
+                            {txPending ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                            ) : (
+                                <Download size={18} />
+                            )}
+                            {t.rewards.claimRewards}
+                        </button>
+                        <p className="text-xs text-slate-500 max-w-[250px] text-right">
+                            {t.rewards.feeNotice}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Private Sale Claim (Only visible if allocated) */}
+            {privateSaleAlloc > 0n && (
+                <div className="bg-gradient-to-br from-cyan-900/30 to-black/40 border border-cyan-500/30 rounded-2xl p-6 relative overflow-hidden backdrop-blur-sm animate-fade-in">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                        <div className="flex items-center gap-4 w-full md:w-auto">
+                            <div className="p-4 bg-cyan-500/20 rounded-full shrink-0">
+                                <Lock className="text-cyan-400" size={32} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg text-slate-300 font-medium">Private Sale Vesting (DES)</h3>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-3xl font-bold text-white tracking-tight">{ethers.formatEther(privateSaleClaimable)}</span>
+                                    <span className="text-cyan-400 font-bold">DES</span>
+                                </div>
+                                <div className="text-xs text-slate-500 mt-1 space-y-1">
+                                    <p>Total Alloc: {ethers.formatEther(privateSaleAlloc)} DES</p>
+                                    <p>Claimed: {ethers.formatEther(privateSaleClaimedVal)} DES</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-2 w-full md:w-auto">
+                            <button
+                                onClick={handleClaimPrivateSale}
+                                disabled={privateSaleClaimable === 0n || txPending}
+                                className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-cyan-900/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 border border-cyan-500/20"
+                            >
+                                {txPending ? "Claiming..." : "Claim DES"}
+                            </button>
+                            <p className="text-xs text-slate-500 text-right">
+                                Unlocks 1% daily over 100 days
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
       )}
 

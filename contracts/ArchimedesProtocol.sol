@@ -78,8 +78,13 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
     
     mapping(address => uint256) public pendingRewards; // Accumulated rewards for daily settlement
 
-    // Daily Burn
-    uint256 public lastBurnTime;
+    // Private Sale Vesting
+    mapping(address => uint256) public privateSaleAllocation;
+    mapping(address => uint256) public privateSaleClaimed;
+    uint256 public launchTime;
+
+    // Daily Burn / Auto Buyback
+    uint256 public lastBuybackTime;
 
     // Events
     event BoundReferrer(address indexed user, address indexed referrer);
@@ -285,17 +290,16 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
     function reinvest(uint256 cycleDays) external nonReentrant {
         Ticket storage ticket = userTicket[msg.sender];
         
-        // Conditions: 
-        // 1. Must have redeemed or expired previous ticket? 
-        // Requirement says: "Reinvestment ratio: 50% USDT + 50% ARC... Reinvest needed to continue mining."
-        // Usually implies starting a NEW cycle after the old one ends (or hits cap).
-        // Here we assume user buys a TICKET first (to set the Tier), then calls reinvest instead of stakeLiquidity?
-        // OR does reinvest REPLACE buyTicket + stakeLiquidity?
-        // "Reinvestment... Static hashrate reset, dynamic preserved."
-        // Let's assume user calls this INSTEAD of stakeLiquidity if they want to use ARC+USDT.
+        // Reinvestment requires a ticket that is NOT currently active (liquidity provided)
+        // OR it's a fresh cycle.
+        // If ticket.amount == 0, they need to buy ticket first.
+        require(ticket.amount > 0, "No valid ticket");
         
-        require(ticket.amount > 0 && !ticket.liquidityProvided, "No valid ticket");
-        require(block.timestamp <= ticket.purchaseTime + 72 hours, "Ticket expired");
+        // If liquidity is already provided, it means they are currently mining.
+        // They can only reinvest if they have REDEEMED first?
+        // OR if the ticket expired?
+        require(!ticket.liquidityProvided || ticket.redeemed, "Active staking exists");
+
         require(cycleDays == 7 || cycleDays == 15 || cycleDays == 30, "Invalid cycle");
 
         uint256 totalReqValue = ticket.requiredLiquidity; // Total Value in USDT
@@ -314,9 +318,7 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
         uint256 arcAmount = (arcValuePart * 1e18) / arcPrice;
         
         arcToken.transferFrom(msg.sender, address(this), arcAmount);
-        // Burn ARC Part (Usually reinvestment burns the token to deflate supply)
-        // Requirement doesn't explicitly say burn, but implies usage. 
-        // Let's burn it to support value.
+        // Burn ARC Part
         arcToken.burn(arcAmount);
 
         // Update Ticket
@@ -324,6 +326,12 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
         ticket.liquidityAmount = totalReqValue; // We track total value staked
         ticket.startTime = block.timestamp;
         ticket.cycleDays = cycleDays;
+        ticket.redeemed = false; // Reset redeemed status
+        ticket.purchaseTime = block.timestamp; // Reset purchase time to avoid expiry issues
+
+        // Reset Cap & Revenue for new cycle
+        userInfo[msg.sender].currentCap = ticket.amount * 3;
+        userInfo[msg.sender].totalRevenue = 0;
 
         // Activate referrer count (if not active)
         address referrer = userInfo[msg.sender].referrer;

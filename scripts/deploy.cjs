@@ -112,6 +112,15 @@ async function main() {
       console.log("Skipping setProtocol for ARC (might not exist in contract):", e.message);
   }
 
+  // Set Protocol address in DES
+  try {
+      const tx = await des.setProtocol(protocolAddress);
+      await tx.wait();
+      console.log("Protocol address set in DES token");
+  } catch (e) {
+      console.log("Skipping setProtocol for DES:", e.message);
+  }
+
   // Funding Protocol with Tokens (Simulation)
   console.log("Funding protocol with initial tokens...");
   

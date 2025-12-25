@@ -268,8 +268,8 @@
       ]
     },
     "C:\\Users\\Administrator\\Documents\\GitHub\\Archimedes\\contracts\\ArchimedesProtocol.sol": {
-      "lastModificationDate": 1766659481169,
-      "contentHash": "bf23953e1ff0fce00a2f218312e6d01a",
+      "lastModificationDate": 1766675323032,
+      "contentHash": "5e0930c07fe083cd659b4aab9c2e282c",
       "sourceName": "contracts/ArchimedesProtocol.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -380,6 +380,45 @@
       ],
       "artifacts": [
         "MockUSDT"
+      ]
+    },
+    "C:\\Users\\Administrator\\Documents\\GitHub\\Archimedes\\contracts\\DES.sol": {
+      "lastModificationDate": 1766674853454,
+      "contentHash": "59a2c0a9a74281e8b0b24234e7e2fb9f",
+      "sourceName": "contracts/DES.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "DES"
       ]
     }
   }

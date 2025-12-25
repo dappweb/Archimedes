@@ -450,9 +450,15 @@ export const translations = {
       reinvestSuccess: 'Reinvestment Successful!',
       reinvestFailed: 'Reinvest Failed: ',
       reinvestBtn: 'Reinvest (50% ARC)',
-      principalOnly: '(Principal Only)'
+      principalOnly: '(Principal Only)',
+      stakeLiquidity: 'Stake Liquidity (100% USDT)',
+      reinvestOption: 'Reinvest (50% USDT + 50% ARC)',
+      reinvestDesc: 'Reinvest with USDT and ARC, hashrate resets, network kept',
+      stakeDesc: 'Stake with 100% USDT',
+      insufficientReinvest: 'Insufficient balance for reinvest (Need 50% USDT + 50% ARC)',
+      reinvestConfirm: 'Confirm Reinvest'
     },
-    team: {
+    rewards: {
       title: 'V-Series Differential Mechanism',
       subtitle: 'Promote effective addresses to get differential revenue',
       bindTitle: 'Bind Referrer',

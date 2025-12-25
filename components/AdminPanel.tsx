@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useWeb3 } from '../Web3Context';
-import { Settings, Save, AlertTriangle, Megaphone, Users, Shield } from 'lucide-react';
+import { Settings, Save, AlertTriangle, Megaphone, Users, Shield, Lock, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { ethers } from 'ethers';
 import toast from 'react-hot-toast';
@@ -199,6 +199,43 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  // Daily Settlement
+  const [settlementInput, setSettlementInput] = useState('');
+  
+  const handleDailySettlement = async () => {
+      if (!protocolContract || !settlementInput) return;
+      setLoading(true);
+      try {
+          // Parse Input: "address1,amount1\naddress2,amount2"
+          const lines = settlementInput.split('\n').map(l => l.trim()).filter(l => l);
+          const users: string[] = [];
+          const amounts: bigint[] = [];
+
+          for (const line of lines) {
+              const [user, amountStr] = line.split(/[,\t]+/).map(s => s.trim());
+              if (ethers.isAddress(user) && amountStr) {
+                  users.push(user);
+                  amounts.push(ethers.parseEther(amountStr));
+              }
+          }
+
+          if (users.length === 0) {
+              toast.error("No valid data found");
+              return;
+          }
+
+          const tx = await protocolContract.distributeDailyRewards(users, amounts);
+          await tx.wait();
+          toast.success(`Distributed rewards to ${users.length} users`);
+          setSettlementInput('');
+      } catch (err: any) {
+          console.error(err);
+          toast.error("Distribution failed: " + (err.reason || err.message));
+      } finally {
+          setLoading(false);
+      }
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 animate-fade-in pb-20">
       <div className="text-center space-y-1 md:space-y-2">
@@ -327,6 +364,28 @@ const AdminPanel: React.FC = () => {
                   </div>
               </div>
           </div>
+      </div>
+
+      {/* Daily Settlement (New) */}
+      <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border">
+          <div className="flex items-center gap-2 mb-3 md:mb-4">
+              <Megaphone className="text-slate-400" size={20} />
+              <h3 className="text-lg md:text-xl font-bold text-slate-200">Daily Rewards Distribution</h3>
+          </div>
+          <p className="text-xs text-slate-400 mb-3">Format: address,amount (one per line). Amount in ARC (Ether unit).</p>
+          <textarea
+              value={settlementInput}
+              onChange={(e) => setSettlementInput(e.target.value)}
+              className="w-full h-32 p-3 bg-dark-card2 border border-dark-border rounded-lg text-white font-mono text-xs mb-3 focus:outline-none focus:border-macoin-500"
+              placeholder={`0x123...abc, 100\n0x456...def, 50.5`}
+          />
+          <button
+              onClick={handleDailySettlement}
+              disabled={loading || !settlementInput}
+              className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          >
+              Distribute Rewards
+          </button>
       </div>
 
       {/* Wallet Addresses */}
