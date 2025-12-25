@@ -76,9 +76,22 @@ const Web3Context = createContext<Web3ContextType | undefined>(undefined);
 export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
   const provider = useEthersProvider({ chainId });
   const signer = useEthersSigner({ chainId });
   const { openConnectModal } = useConnectModal();
+
+  // Auto Switch Network
+  useEffect(() => {
+    if (isConnected && chainId !== CHAIN_CONFIG.ID) {
+      console.log(`Switching to ${CHAIN_CONFIG.NAME}...`);
+      try {
+        switchChain({ chainId: CHAIN_CONFIG.ID });
+      } catch (error) {
+        console.error("Failed to switch network:", error);
+      }
+    }
+  }, [isConnected, chainId, switchChain]);
 
   const [usdtContract, setUsdtContract] = useState<ethers.Contract | null>(null);
   const [arcContract, setArcContract] = useState<ethers.Contract | null>(null);

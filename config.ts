@@ -1,4 +1,4 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { 
   tokenPocketWallet,
   metaMaskWallet,
@@ -8,19 +8,13 @@ import {
   okxWallet,
   bitgetWallet
 } from '@rainbow-me/rainbowkit/wallets';
+import { createConfig, http } from 'wagmi';
 import { bsc, bscTestnet, sepolia } from 'wagmi/chains';
-import { http } from 'wagmi';
 
-export const config = getDefaultConfig({
-  appName: 'Archimedes Protocol',
-  projectId: 'YOUR_PROJECT_ID', // Reown (WalletConnect) Project ID
-  chains: [sepolia, bsc, bscTestnet],
-  transports: {
-    [sepolia.id]: http(),
-    [bsc.id]: http(),
-    [bscTestnet.id]: http(),
-  },
-  wallets: [
+const projectId = 'YOUR_PROJECT_ID'; // Reown (WalletConnect) Project ID
+
+const connectors = connectorsForWallets(
+  [
     {
       groupName: 'Recommended',
       wallets: [
@@ -39,4 +33,18 @@ export const config = getDefaultConfig({
       ],
     },
   ],
+  {
+    appName: 'Archimedes Protocol',
+    projectId,
+  }
+);
+
+export const config = createConfig({
+  chains: [sepolia, bsc, bscTestnet],
+  transports: {
+    [sepolia.id]: http(),
+    [bsc.id]: http(),
+    [bscTestnet.id]: http(),
+  },
+  connectors,
 });
