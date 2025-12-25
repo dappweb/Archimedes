@@ -1,0 +1,15 @@
+{
+  "network": "sepolia",
+  "chainId": 11155111,
+  "date": "2025-12-25T07:21:33.417Z",
+  "contracts": {
+    "USDT": "0xcF76D2825C3529E6e131315C8075279Bd9810670",
+    "ARC": "0xa2A6d890ae63C8950b372e6aEb6Dc055efB0c2e0",
+    "DES": "0x67bB2D87105981eB7D47191E3C3Cdd8d4Cd5A53E",
+    "Protocol": "0x3e8D1A1247794750364d8F19c56e165C1d2024b5"
+  },
+  "wallets": {
+    "platform": "0x4C10831CBcF9884ba72051b5287b6c87E4F74A48",
+    "lp": "0x4C10831CBcF9884ba72051b5287b6c87E4F74A48"
+  }
+}

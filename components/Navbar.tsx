@@ -86,7 +86,7 @@ const Navbar: React.FC<NavbarProps> = ({ currentTab, setTab }) => {
                   currentTab === AppTab.SWAP ? "text-macoin-500" : "text-slate-400 hover:text-white"
                 }`}
               >
-                <ArrowLeftRight size={18} /> Swap
+                <ArrowLeftRight size={18} /> {t.nav.swap}
               </button>
               <button
                 onClick={() => setTab(AppTab.HISTORY)}

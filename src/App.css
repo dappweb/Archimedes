@@ -1,0 +1,398 @@
+.app-container {
+  max-width: 100%;
+  margin: 0;
+  padding: 16px;
+  min-height: 100vh;
+  background-color: #000000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-name {
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: 0.5px;
+}
+
+.connect-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 18px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5),
+              0 0 25px rgba(118, 75, 162, 0.4),
+              inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.connect-btn:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6),
+              0 0 30px rgba(118, 75, 162, 0.5),
+              inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Hero Section */
+.hero-section {
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+  padding: 20px 0;
+}
+
+.hashrate-value {
+  font-size: 3.5rem;
+  font-weight: 800;
+  background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+  text-shadow: 0 0 20px rgba(79, 172, 254, 0.4);
+}
+
+.hashrate-label {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.buy-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: #fff;
+  padding: 10px 36px;
+  border-radius: 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5),
+              0 0 25px rgba(118, 75, 162, 0.4),
+              inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.buy-btn:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6),
+              0 0 30px rgba(118, 75, 162, 0.5),
+              inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.reward-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+  padding: 4px 16px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transform: translateY(10px);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reward-badge:hover {
+  transform: translateY(8px);
+  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+}
+
+/* Announcement */
+.announcement {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.announcement-label {
+  color: #aaa;
+}
+
+/* Cards */
+.card {
+  background: #111118;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  border: 1px solid #222;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Stats Card */
+.stats-card {
+  background: linear-gradient(145deg, #1a1a2e, #16213e);
+  border: 1px solid #30336b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #4facfe, transparent);
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  z-index: 1;
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background-color: #333;
+  margin: 0 10px;
+}
+
+/* Action Cards */
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.card-row:last-child {
+  margin-bottom: 0;
+}
+
+.label-text {
+  color: #ccc;
+  font-size: 0.95rem;
+}
+
+.text-muted {
+  color: #666;
+}
+
+.small-text {
+  font-size: 0.8rem;
+  margin-right: 8px;
+  color: #666;
+}
+
+.invite-code {
+  color: #aaa;
+  font-size: 0.95rem;
+}
+
+.highlight-text {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Buttons */
+.action-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-width: 70px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5),
+              0 0 25px rgba(118, 75, 162, 0.4),
+              inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6),
+              0 0 30px rgba(118, 75, 162, 0.5),
+              inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.full-width-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 24px;
+  padding: 12px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5),
+              0 0 25px rgba(118, 75, 162, 0.4),
+              inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.full-width-btn:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6),
+              0 0 30px rgba(118, 75, 162, 0.5),
+              inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.gradient-btn-1,
+.gradient-btn-2,
+.gradient-btn-3 {
+  /* 继承 action-btn 和 full-width-btn 的样式 */
+}
+
+/* Info Cards */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  color: #888;
+}
+
+.info-value {
+  color: #ddd;
+  font-weight: 500;
+}
+
+/* Table Card */
+.table-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  padding: 16px 16px 0;
+  gap: 20px;
+  border-bottom: 1px solid #222;
+  scrollbar-width: none;
+}
+
+.tabs span {
+  white-space: nowrap;
+  padding-bottom: 12px;
+  color: #888;
+  font-size: 0.9rem;
+  position: relative;
+  cursor: pointer;
+}
+
+.tabs span.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.tabs span.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #fff;
+}
+
+.table-header {
+  display: flex;
+  padding: 12px 16px;
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.table-body {
+  padding: 0 16px 16px;
+}
+
+.table-row {
+  display: flex;
+  padding: 12px 0;
+  border-bottom: 1px solid #222;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-header span, .table-row span {
+  flex: 1;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Responsive styles for ConnectButton */
+@media (max-width: 640px) {
+  .chain-name {
+    display: none;
+  }
+
+  .account-balance {
+    display: none;
+  }
+
+  .connect-btn {
+    padding: 8px 12px;
+  }
+}

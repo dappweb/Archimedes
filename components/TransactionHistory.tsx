@@ -235,12 +235,14 @@ const TransactionHistory: React.FC = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="bg-dark-card rounded-xl shadow-md p-4 mb-6 border border-dark-border">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Filter className="w-5 h-5 text-slate-400" />
+      <div className="bg-dark-card rounded-xl shadow-md p-2 md:p-4 mb-6 border border-dark-border overflow-hidden">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0 md:flex-wrap">
+          <div className="shrink-0 pr-2 border-r border-dark-border mr-1 hidden md:block">
+            <Filter className="w-5 h-5 text-slate-400" />
+          </div>
           <button
             onClick={() => setFilterType('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors shrink-0 ${
               filterType === 'all'
                 ? 'bg-macoin-600 text-white'
                 : 'bg-dark-card2 text-slate-400 hover:bg-slate-700'
@@ -252,7 +254,7 @@ const TransactionHistory: React.FC = () => {
             <button
               key={value}
               onClick={() => setFilterType(value)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`whitespace-nowrap px-4 py-2 rounded-lg font-medium transition-colors shrink-0 ${
                 filterType === value
                   ? 'bg-macoin-600 text-white'
                   : 'bg-dark-card2 text-slate-400 hover:bg-slate-700'

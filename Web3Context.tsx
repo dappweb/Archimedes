@@ -18,10 +18,13 @@ export const PROTOCOL_ABI = [
   "function bindReferrer(address _referrer) external",
   "function buyTicket(uint256 amount) external",
   "function stakeLiquidity(uint256 cycleDays) external",
+  "function reinvest(uint256 cycleDays) external",
   "function claimRewards() external",
   "function redeem() external",
   "function swapUSDTToARC(uint256 usdtAmount) external",
   "function swapARCToUSDT(uint256 arcAmount) external",
+  "function swapUSDTToDES(uint256 usdtAmount) external",
+  "function swapDESToUSDT(uint256 desAmount) external",
   "function userInfo(address) view returns (address referrer, uint256 activeDirects, uint256 teamCount, uint256 totalRevenue, uint256 currentCap, bool isActive)",
   "function userTicket(address) view returns (uint256 amount, uint256 requiredLiquidity, uint256 purchaseTime, bool liquidityProvided, uint256 liquidityAmount, uint256 startTime, uint256 cycleDays, bool redeemed)",
   "function getDirectReferrals(address) view returns (address[])",
@@ -44,7 +47,9 @@ export const PROTOCOL_ABI = [
   "event RewardClaimed(address indexed user, uint256 usdtAmount, uint256 arcAmount)",
   "event Redeemed(address indexed user, uint256 principal, uint256 fee)",
   "event SwappedUSDTToARC(address indexed user, uint256 usdtAmount, uint256 arcAmount, uint256 tax)",
-  "event SwappedARCToUSDT(address indexed user, uint256 arcAmount, uint256 usdtAmount, uint256 tax)"
+  "event SwappedARCToUSDT(address indexed user, uint256 arcAmount, uint256 usdtAmount, uint256 tax)",
+  "event SwappedUSDTToDES(address indexed user, uint256 usdtAmount, uint256 desAmount)",
+  "event SwappedDESToUSDT(address indexed user, uint256 desAmount, uint256 usdtAmount, uint256 tax)"
 ];
 
 // Contract Addresses (Sepolia Testnet)

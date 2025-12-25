@@ -21,6 +21,9 @@ const MiningPanel: React.FC = () => {
   const [isBindingReferrer, setIsBindingReferrer] = useState(false);
   const [jbcPrice, setJbcPrice] = useState<bigint>(0n);
   
+  const [arcPrice, setArcPrice] = useState<bigint>(0n);
+  const [arcAllowance, setArcAllowance] = useState<bigint>(0n);
+  
   // DES Fee State
   const [desBalance, setDesBalance] = useState<bigint>(0n);
   const [desAllowance, setDesAllowance] = useState<bigint>(0n);
@@ -28,7 +31,7 @@ const MiningPanel: React.FC = () => {
   const [desFeeRate, setDesFeeRate] = useState<bigint>(0n);
 
   const { t } = useLanguage();
-  const { protocolContract, usdtContract, desContract, account, isConnected, hasReferrer, isOwner, referrerAddress, checkReferrerStatus } = useWeb3();
+  const { protocolContract, usdtContract, desContract, arcContract, account, isConnected, hasReferrer, isOwner, referrerAddress, checkReferrerStatus } = useWeb3();
 
   // Fetch ARC Price and Fee Percent
   useEffect(() => {
@@ -51,6 +54,21 @@ const MiningPanel: React.FC = () => {
       };
       fetchData();
   }, [protocolContract]);
+
+  // Fetch ARC Allowance
+  useEffect(() => {
+    const fetchArcAllowance = async () => {
+        if (protocolContract && arcContract && account) {
+            try {
+                const allow = await arcContract.allowance(account, await protocolContract.getAddress());
+                setArcAllowance(allow);
+            } catch (e) {
+                console.error("Failed to fetch ARC allowance", e);
+            }
+        }
+    };
+    fetchArcAllowance();
+  }, [protocolContract, arcContract, account, txPending]);
 
   // Fetch DES Balance & Allowance
   useEffect(() => {
@@ -281,17 +299,83 @@ const MiningPanel: React.FC = () => {
       }
   };
 
+  const handleReinvest = async () => {
+    if (!protocolContract || !usdtContract || !arcContract) return;
+    setTxPending(true);
+    try {
+        const totalReqValue = ethers.parseEther(selectedTicket.requiredLiquidity.toString());
+        const usdtPart = totalReqValue / 2n;
+        const arcValuePart = totalReqValue / 2n;
+
+        // 1. Check USDT Balance & Allowance
+        const usdtBalance = await usdtContract.balanceOf(account);
+        if (usdtBalance < usdtPart) {
+            toast.error(`${t.mining.insufficientUSDT} (Need ${ethers.formatEther(usdtPart)})`);
+            return;
+        }
+        
+        const protocolAddr = await protocolContract.getAddress();
+        const usdtAllow = await usdtContract.allowance(account, protocolAddr);
+        if (usdtAllow < usdtPart) {
+             toast(t.mining.approvingUSDT, { icon: 'ℹ️' });
+             const tx = await usdtContract.approve(protocolAddr, ethers.MaxUint256);
+             await tx.wait();
+             toast.success(t.mining.usdtApproved);
+        }
+
+        // 2. Check ARC Balance & Allowance
+        // Calc ARC amount needed
+        const price = await protocolContract.getARCPrice();
+        if (price === 0n) {
+             toast.error(t.mining.invalidARCPrice);
+             return;
+        }
+        const arcAmount = (arcValuePart * ethers.parseEther("1")) / price;
+        
+        const arcBalance = await arcContract.balanceOf(account);
+        if (arcBalance < arcAmount) {
+             toast.error(t.mining.insufficientARC.replace('{amount}', ethers.formatEther(arcAmount)));
+             return;
+        }
+
+        const arcAllow = await arcContract.allowance(account, protocolAddr);
+        if (arcAllow < arcAmount) {
+             toast(t.mining.approvingARC, { icon: 'ℹ️' });
+             const tx = await arcContract.approve(protocolAddr, ethers.MaxUint256);
+             await tx.wait();
+             toast.success(t.mining.arcApproved);
+        }
+
+        // 3. Reinvest
+        const tx = await protocolContract.reinvest(selectedPlan.days);
+        await tx.wait();
+        toast.success(t.mining.reinvestSuccess);
+        await checkTicketStatus();
+
+    } catch (err: any) {
+        console.error("Reinvest failed", err);
+        const errorMsg = err.reason || err.message || '';
+        if (errorMsg.includes("Ticket expired")) {
+             toast.error(t.mining.ticketExpiredBuy);
+        } else {
+             toast.error(`${t.mining.reinvestFailed}${errorMsg}`);
+        }
+    } finally {
+        setTxPending(false);
+    }
+  };
+
   const handleClaim = async () => {
       if (!protocolContract || !desContract) return;
       setTxPending(true);
       try {
           // Check allowance for DES
           if (desAllowance < ethers.parseEther("100")) { // Just ensure enough allowance
-             toast('Approving DES for Fee...', { icon: 'ℹ️' });
+             toast(t.mining.approvingDES, { icon: 'ℹ️' });
              const tx = await desContract.approve(await protocolContract.getAddress(), ethers.MaxUint256);
              await tx.wait();
              setDesAllowance(ethers.MaxUint256); // Optimistic update
-             toast.success('DES Approved');
+             toast.success(t.mining.desApproved);
           }
           
           const tx = await protocolContract.claimRewards();
@@ -303,7 +387,7 @@ const MiningPanel: React.FC = () => {
           if (errorMsg.includes("No rewards yet")) {
             toast.error(t.mining.noRewardsYet);
           } else if (errorMsg.includes("Insufficient DES")) {
-            toast.error("Insufficient DES for Fee!");
+            toast.error(t.mining.insufficientDES);
           } else {
             toast.error(`${t.mining.claimFailed}: ${errorMsg || t.mining.noRewards}`);
           }
@@ -464,8 +548,8 @@ const MiningPanel: React.FC = () => {
                         <div className="text-yellow-500 font-bold text-xl">⬢</div>
                     </div>
                     <div>
-                        <h4 className="text-white font-bold text-lg">{tier.amount} USDT Node</h4>
-                        <p className="text-slate-400 text-xs">Required: {tier.requiredLiquidity} USDT Liquidity</p>
+                        <h4 className="text-white font-bold text-lg">{tier.amount} USDT {t.mining.node}</h4>
+                        <p className="text-slate-400 text-xs">{t.mining.requiredLiquidity.replace('{amount}', tier.requiredLiquidity.toString())}</p>
                     </div>
                 </div>
 
@@ -475,7 +559,7 @@ const MiningPanel: React.FC = () => {
                     ? 'bg-primary-gradient text-white shadow-md'
                     : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700'
                 }`}>
-                    {selectedTicket.amount === tier.amount ? 'Selected' : 'Select'}
+                    {selectedTicket.amount === tier.amount ? t.mining.selected : t.mining.select}
                 </div>
               </div>
             ))}
@@ -496,7 +580,7 @@ const MiningPanel: React.FC = () => {
                 disabled={txPending || isTicketExpired}
                 className="w-full py-4 md:py-5 bg-primary-gradient hover:opacity-90 text-white font-extrabold text-xl rounded-xl shadow-xl shadow-purple-900/20 transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {txPending ? t.mining.buying : `Subscribe ${selectedTicket.amount} USDT Node`}
+                {txPending ? t.mining.buying : `${t.mining.subscribe} ${selectedTicket.amount} USDT ${t.mining.node}`}
               </button>
             )}
           </div>
@@ -727,13 +811,23 @@ const MiningPanel: React.FC = () => {
                             {txPending ? t.mining.buying : `🎫 ${t.mining.buyTicket}`}
                         </button>
                     ) : canStakeLiquidity ? (
-                         <button
-                            onClick={handleStake}
-                            disabled={txPending}
-                            className="w-full py-4 bg-primary-gradient hover:opacity-90 text-white font-extrabold text-lg rounded-lg shadow-lg shadow-purple-900/30 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 disabled:opacity-50"
-                         >
-                            {txPending ? t.mining.staking : t.mining.stake} <ArrowRight size={20} />
-                        </button>
+                         <div className="flex gap-2">
+                             <button
+                                onClick={handleStake}
+                                disabled={txPending}
+                                className="flex-1 py-4 bg-primary-gradient hover:opacity-90 text-white font-extrabold text-lg rounded-lg shadow-lg shadow-purple-900/30 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 disabled:opacity-50"
+                             >
+                                {txPending ? t.mining.staking : t.mining.stake} (USDT) <ArrowRight size={20} />
+                            </button>
+                            
+                            <button
+                                onClick={handleReinvest}
+                                disabled={txPending}
+                                className="flex-1 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white font-extrabold text-lg rounded-lg shadow-lg shadow-purple-900/30 transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2 disabled:opacity-50"
+                             >
+                                {t.mining.reinvestBtn} <ArrowRight size={20} />
+                            </button>
+                         </div>
                     ) : hasActiveTicket ? (
                         <button
                             disabled
@@ -775,7 +869,7 @@ const MiningPanel: React.FC = () => {
                          >
                             <span>{t.mining.redeem}</span>
                             <span className="text-[10px] opacity-80">
-                                (Principal Only)
+                                {t.mining.principalOnly}
                             </span>
                          </button>
                     </div>

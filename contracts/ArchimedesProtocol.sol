@@ -83,10 +83,13 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
     event BoundReferrer(address indexed user, address indexed referrer);
     event TicketPurchased(address indexed user, uint256 amount);
     event LiquidityStaked(address indexed user, uint256 amount, uint256 cycleDays);
+    event Reinvested(address indexed user, uint256 usdtAmount, uint256 arcAmount, uint256 cycleDays);
     event RewardClaimed(address indexed user, uint256 usdtAmount, uint256 arcAmount);
     event Redeemed(address indexed user, uint256 principal, uint256 fee);
     event SwappedUSDTToARC(address indexed user, uint256 usdtAmount, uint256 arcAmount, uint256 tax);
     event SwappedARCToUSDT(address indexed user, uint256 arcAmount, uint256 usdtAmount, uint256 tax);
+    event SwappedUSDTToDES(address indexed user, uint256 usdtAmount, uint256 desAmount);
+    event SwappedDESToUSDT(address indexed user, uint256 desAmount, uint256 usdtAmount, uint256 tax);
     event DailyBurn(uint256 amount);
 
     constructor(
@@ -275,6 +278,61 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
         emit LiquidityStaked(msg.sender, reqAmount, cycleDays);
     }
 
+    // --- Reinvestment (Section 5.4) ---
+    // 50% USDT + 50% ARC
+    function reinvest(uint256 cycleDays) external nonReentrant {
+        Ticket storage ticket = userTicket[msg.sender];
+        
+        // Conditions: 
+        // 1. Must have redeemed or expired previous ticket? 
+        // Requirement says: "Reinvestment ratio: 50% USDT + 50% ARC... Reinvest needed to continue mining."
+        // Usually implies starting a NEW cycle after the old one ends (or hits cap).
+        // Here we assume user buys a TICKET first (to set the Tier), then calls reinvest instead of stakeLiquidity?
+        // OR does reinvest REPLACE buyTicket + stakeLiquidity?
+        // "Reinvestment... Static hashrate reset, dynamic preserved."
+        // Let's assume user calls this INSTEAD of stakeLiquidity if they want to use ARC+USDT.
+        
+        require(ticket.amount > 0 && !ticket.liquidityProvided, "No valid ticket");
+        require(block.timestamp <= ticket.purchaseTime + 72 hours, "Ticket expired");
+        require(cycleDays == 7 || cycleDays == 15 || cycleDays == 30, "Invalid cycle");
+
+        uint256 totalReqValue = ticket.requiredLiquidity; // Total Value in USDT
+        
+        uint256 usdtPart = totalReqValue / 2;
+        uint256 arcValuePart = totalReqValue / 2;
+        
+        // 1. Transfer USDT Part
+        usdtToken.transferFrom(msg.sender, address(this), usdtPart);
+        
+        // 2. Transfer ARC Part
+        uint256 arcPrice = getARCPrice();
+        require(arcPrice > 0, "Invalid ARC price");
+        
+        // Calculate ARC Amount: (Value * 1e18) / Price
+        uint256 arcAmount = (arcValuePart * 1e18) / arcPrice;
+        
+        arcToken.transferFrom(msg.sender, address(this), arcAmount);
+        // Burn ARC Part (Usually reinvestment burns the token to deflate supply)
+        // Requirement doesn't explicitly say burn, but implies usage. 
+        // Let's burn it to support value.
+        arcToken.burn(arcAmount);
+
+        // Update Ticket
+        ticket.liquidityProvided = true;
+        ticket.liquidityAmount = totalReqValue; // We track total value staked
+        ticket.startTime = block.timestamp;
+        ticket.cycleDays = cycleDays;
+
+        // Activate referrer count (if not active)
+        address referrer = userInfo[msg.sender].referrer;
+        if (referrer != address(0) && !userInfo[msg.sender].isActive) {
+            userInfo[referrer].activeDirects++;
+            userInfo[msg.sender].isActive = true;
+        }
+
+        emit Reinvested(msg.sender, usdtPart, arcAmount, cycleDays);
+    }
+
     // --- Redemption & Claims ---
 
     function claimRewards() external nonReentrant {
@@ -438,6 +496,59 @@ contract ArchimedesProtocol is Ownable, ReentrancyGuard {
         usdtToken.transfer(msg.sender, usdtOutput);
         
         emit SwappedARCToUSDT(msg.sender, arcAmount, usdtOutput, tax);
+    }
+
+    // Buy DES with USDT
+    function swapUSDTToDES(uint256 usdtAmount) external nonReentrant {
+        require(usdtAmount > 0, "Invalid amount");
+        
+        // 1. Transfer USDT from user to contract
+        usdtToken.transferFrom(msg.sender, address(this), usdtAmount);
+
+        uint256 usdtReserve = usdtToken.balanceOf(address(this)) - usdtAmount;
+        uint256 desReserve = desToken.balanceOf(address(this));
+        
+        // 2. Calculate Output
+        uint256 desOutput = getAmountOut(usdtAmount, usdtReserve, desReserve);
+        
+        // 3. Check liquidity
+        require(desToken.balanceOf(address(this)) >= desOutput, "Insufficient DES liquidity");
+        
+        // 4. Transfer DES to user
+        desToken.transfer(msg.sender, desOutput);
+        
+        emit SwappedUSDTToDES(msg.sender, usdtAmount, desOutput);
+    }
+
+    // Sell DES for USDT (Tax 3% Burn)
+    function swapDESToUSDT(uint256 desAmount) external nonReentrant {
+        require(desAmount > 0, "Invalid amount");
+        
+        // 1. Transfer DES from user to contract
+        desToken.transferFrom(msg.sender, address(this), desAmount);
+
+        // 3% Tax (All Burned)
+        uint256 tax = (desAmount * 3) / 100;
+        uint256 amountToSwap = desAmount - tax;
+        
+        // Burn Tax (Send to Dead Address as MockUSDT doesn't have public burn)
+        if (tax > 0) {
+            desToken.transfer(0x000000000000000000000000000000000000dEaD, tax);
+        }
+        
+        // Now calculate Swap
+        uint256 desReserve = desToken.balanceOf(address(this)) - amountToSwap; 
+        uint256 usdtReserve = usdtToken.balanceOf(address(this));
+        
+        uint256 usdtOutput = getAmountOut(amountToSwap, desReserve, usdtReserve);
+        
+        // Check liquidity
+        require(usdtToken.balanceOf(address(this)) >= usdtOutput, "Insufficient USDT liquidity");
+        
+        // Transfer USDT to user
+        usdtToken.transfer(msg.sender, usdtOutput);
+        
+        emit SwappedDESToUSDT(msg.sender, desAmount, usdtOutput, tax);
     }
 
     function redeem() external nonReentrant {

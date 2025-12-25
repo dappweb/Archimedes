@@ -59,7 +59,7 @@ const AdminPanel: React.FC = () => {
       window.dispatchEvent(new Event('storage'));
     } catch (err) {
       console.error('Failed to publish announcement', err);
-      toast.error('Failed to publish announcement');
+      toast.error(t.admin.failedPublish);
     }
   };
 
@@ -74,7 +74,7 @@ const AdminPanel: React.FC = () => {
       window.dispatchEvent(new Event('storage'));
     } catch (err) {
       console.error('Failed to clear announcement', err);
-      toast.error('Failed to clear announcement');
+      toast.error(t.admin.failedClear);
     }
   };
 
@@ -83,7 +83,7 @@ const AdminPanel: React.FC = () => {
     setLoading(true);
     try {
         if (!marketingWallet || !lpWallet) {
-            toast.error("Required: Platform & LP Wallet");
+            toast.error(t.admin.walletRequired);
             return;
         }
       const tx = await protocolContract.setWallets(marketingWallet, lpWallet);
@@ -130,10 +130,10 @@ const AdminPanel: React.FC = () => {
     try {
         const tx = await protocolContract.setWhitelist(whitelistAddr, status);
         await tx.wait();
-        toast.success(status ? "Added to Whitelist" : "Removed from Whitelist");
+        toast.success(status ? t.admin.whitelistAdded : t.admin.whitelistRemoved);
         setWhitelistAddr('');
     } catch (e: any) {
-        toast.error("Failed: " + (e.reason || e.message));
+        toast.error(t.admin.failed + (e.reason || e.message));
     } finally {
         setLoading(false);
     }
@@ -145,10 +145,10 @@ const AdminPanel: React.FC = () => {
     try {
         const tx = await protocolContract.setCommunityOffice(officeAddr, status);
         await tx.wait();
-        toast.success(status ? "Office Set" : "Office Removed");
+        toast.success(status ? t.admin.officeSet : t.admin.officeRemoved);
         setOfficeAddr('');
     } catch (e: any) {
-        toast.error("Failed: " + (e.reason || e.message));
+        toast.error(t.admin.failed + (e.reason || e.message));
     } finally {
         setLoading(false);
     }
@@ -156,7 +156,7 @@ const AdminPanel: React.FC = () => {
 
   const addLiquidity = async (tokenType: 'USDT' | 'ARC') => {
     if (!isConnected || !provider) {
-        toast.error("Connect wallet first");
+        toast.error(t.admin.connectWallet);
         return;
     }
 
@@ -168,32 +168,32 @@ const AdminPanel: React.FC = () => {
             const amount = ethers.parseEther(usdtLiquidityAmount);
 
             if (!usdtContract) {
-                toast.error("USDT contract not found");
+                toast.error(t.admin.usdtNotFound);
                 return;
             }
 
             // Transfer USDT to protocol contract
             const tx = await usdtContract.connect(signer).transfer(CONTRACT_ADDRESSES.PROTOCOL, amount);
             await tx.wait();
-            toast.success(`Added ${usdtLiquidityAmount} USDT to pool!`);
+            toast.success(t.admin.addedLiquidity.replace('{amount}', usdtLiquidityAmount).replace('{token}', 'USDT'));
             setUsdtLiquidityAmount('');
         } else if (tokenType === 'ARC' && arcLiquidityAmount) {
             const amount = ethers.parseEther(arcLiquidityAmount);
 
             if (!arcContract) {
-                toast.error("ARC contract not found");
+                toast.error(t.admin.arcNotFound);
                 return;
             }
 
             // Transfer ARC to protocol contract
             const tx = await arcContract.connect(signer).transfer(CONTRACT_ADDRESSES.PROTOCOL, amount);
             await tx.wait();
-            toast.success(`Added ${arcLiquidityAmount} ARC to pool!`);
+            toast.success(t.admin.addedLiquidity.replace('{amount}', arcLiquidityAmount).replace('{token}', 'ARC'));
             setArcLiquidityAmount('');
         }
     } catch (err: any) {
         console.error(err);
-        toast.error("Failed: " + (err.reason || err.message));
+        toast.error(t.admin.failed + (err.reason || err.message));
     } finally {
         setLoading(false);
     }
@@ -266,7 +266,7 @@ const AdminPanel: React.FC = () => {
           <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border">
               <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <Shield className="text-slate-400" size={20} />
-                  <h3 className="text-lg md:text-xl font-bold text-slate-200">Whitelist Manager</h3>
+                  <h3 className="text-lg md:text-xl font-bold text-slate-200">{t.admin.whitelistManager}</h3>
               </div>
               <div className="space-y-3">
                   <input 
@@ -274,7 +274,7 @@ const AdminPanel: React.FC = () => {
                       value={whitelistAddr} 
                       onChange={e => setWhitelistAddr(e.target.value)} 
                       className="w-full p-2 border border-dark-border bg-dark-card2 text-white rounded text-sm font-mono focus:outline-none focus:border-macoin-500" 
-                      placeholder="User Address (0x...)" 
+                      placeholder={t.admin.userAddressPlaceholder}
                   />
                   <div className="flex gap-2">
                       <button 
@@ -282,14 +282,14 @@ const AdminPanel: React.FC = () => {
                           disabled={loading || !whitelistAddr} 
                           className="flex-1 py-2 bg-green-700 text-white rounded hover:bg-green-800 disabled:opacity-50 transition-colors"
                       >
-                          Add Whitelist
+                          {t.admin.addWhitelist}
                       </button>
                       <button 
                           onClick={() => handleSetWhitelist(false)} 
                           disabled={loading || !whitelistAddr} 
                           className="flex-1 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 transition-colors"
                       >
-                          Remove
+                          {t.admin.remove}
                       </button>
                   </div>
               </div>
@@ -299,7 +299,7 @@ const AdminPanel: React.FC = () => {
           <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-dark-border">
               <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <Users className="text-slate-400" size={20} />
-                  <h3 className="text-lg md:text-xl font-bold text-slate-200">Community Office</h3>
+                  <h3 className="text-lg md:text-xl font-bold text-slate-200">{t.admin.communityOffice}</h3>
               </div>
               <div className="space-y-3">
                   <input 
@@ -307,7 +307,7 @@ const AdminPanel: React.FC = () => {
                       value={officeAddr} 
                       onChange={e => setOfficeAddr(e.target.value)} 
                       className="w-full p-2 border border-dark-border bg-dark-card2 text-white rounded text-sm font-mono focus:outline-none focus:border-macoin-500" 
-                      placeholder="Office Address (0x...)" 
+                      placeholder={t.admin.officeAddressPlaceholder}
                   />
                   <div className="flex gap-2">
                       <button 
@@ -315,14 +315,14 @@ const AdminPanel: React.FC = () => {
                           disabled={loading || !officeAddr} 
                           className="flex-1 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 disabled:opacity-50 transition-colors"
                       >
-                          Set Office
+                          {t.admin.setOffice}
                       </button>
                       <button 
                           onClick={() => handleSetOffice(false)} 
                           disabled={loading || !officeAddr} 
                           className="flex-1 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 transition-colors"
                       >
-                          Remove
+                          {t.admin.remove}
                       </button>
                   </div>
               </div>
@@ -334,11 +334,11 @@ const AdminPanel: React.FC = () => {
           <h3 className="text-lg md:text-xl font-bold mb-3 md:mb-4 text-slate-200">{t.admin.wallets}</h3>
           <div className="space-y-3 md:space-y-4">
               <div>
-                  <label className="block text-xs md:text-sm text-slate-400 mb-1">Platform Wallet</label>
+                  <label className="block text-xs md:text-sm text-slate-400 mb-1">{t.admin.platformWallet}</label>
                   <input type="text" value={marketingWallet} onChange={e => setMarketingWallet(e.target.value)} className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-xs md:text-sm font-mono focus:outline-none focus:border-macoin-500" placeholder="0x..." />
               </div>
               <div>
-                  <label className="block text-xs md:text-sm text-slate-400 mb-1">LP Wallet</label>
+                  <label className="block text-xs md:text-sm text-slate-400 mb-1">{t.admin.lpWallet}</label>
                   <input type="text" value={lpWallet} onChange={e => setLpWallet(e.target.value)} className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-xs md:text-sm font-mono focus:outline-none focus:border-macoin-500" placeholder="0x..." />
               </div>
               <button onClick={updateWallets} disabled={loading} className="w-full py-2 md:py-2.5 bg-macoin-600 text-white rounded-lg mt-2 hover:bg-macoin-700 disabled:opacity-50 text-sm md:text-base transition-colors">
@@ -387,44 +387,44 @@ const AdminPanel: React.FC = () => {
       <div className="glass-panel p-4 md:p-6 rounded-xl md:rounded-2xl bg-dark-card border border-red-500/30">
           <div className="flex items-center gap-2 mb-3 md:mb-4">
               <AlertTriangle className="text-red-400" size={20} />
-              <h3 className="text-lg md:text-xl font-bold text-slate-200">Add Pool Liquidity (Admin Only)</h3>
+              <h3 className="text-lg md:text-xl font-bold text-slate-200">{t.admin.addPoolLiquidity}</h3>
           </div>
-          <p className="text-xs md:text-sm text-slate-400 mb-4">Transfer tokens from your wallet to the protocol contract to add liquidity for swaps.</p>
+          <p className="text-xs md:text-sm text-slate-400 mb-4">{t.admin.liquidityDesc}</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-3">
-                  <label className="block text-sm font-medium text-slate-300">Add USDT Liquidity</label>
+                  <label className="block text-sm font-medium text-slate-300">{t.admin.addUSDTLiquidity}</label>
                   <input 
                       type="number" 
                       value={usdtLiquidityAmount} 
                       onChange={e => setUsdtLiquidityAmount(e.target.value)} 
                       className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-sm focus:outline-none focus:border-macoin-500"
-                      placeholder="Amount in USDT"
+                      placeholder={t.admin.amountUSDT}
                   />
                   <button 
                       onClick={() => addLiquidity('USDT')} 
                       disabled={loading || !usdtLiquidityAmount}
                       className="w-full py-2 md:py-2.5 bg-macoin-600 text-white rounded-lg hover:bg-macoin-700 disabled:opacity-50 text-sm md:text-base transition-colors"
                   >
-                      Add USDT to Pool
+                      {t.admin.addUSDTPool}
                   </button>
               </div>
               
               <div className="space-y-3">
-                  <label className="block text-sm font-medium text-slate-300">Add ARC Liquidity</label>
+                  <label className="block text-sm font-medium text-slate-300">{t.admin.addARCLiquidity}</label>
                   <input 
                       type="number" 
                       value={arcLiquidityAmount} 
                       onChange={e => setArcLiquidityAmount(e.target.value)} 
                       className="w-full p-2 md:p-2.5 border border-dark-border bg-dark-card2 text-white rounded text-sm focus:outline-none focus:border-macoin-500"
-                      placeholder="Amount in ARC"
+                      placeholder={t.admin.amountARC}
                   />
                   <button 
                       onClick={() => addLiquidity('ARC')} 
                       disabled={loading || !arcLiquidityAmount}
                       className="w-full py-2 md:py-2.5 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 disabled:opacity-50 text-sm md:text-base transition-colors"
                   >
-                      Add ARC to Pool
+                      {t.admin.addARCPool}
                   </button>
               </div>
           </div>

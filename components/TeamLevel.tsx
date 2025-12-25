@@ -33,14 +33,14 @@ const TeamLevel: React.FC = () => {
           // Try modern clipboard API first
           if (navigator.clipboard && navigator.clipboard.writeText) {
               navigator.clipboard.writeText(url)
-                  .then(() => toast.success("Referral Link Copied!"))
+                  .then(() => toast.success(t.team.referralLinkCopied))
                   .catch(() => fallbackCopy(url));
           } else {
               // Fallback for older browsers or non-HTTPS
               fallbackCopy(url);
           }
       } else {
-          toast.error("Connect Wallet First");
+          toast.error(t.team.connectWalletFirst);
       }
   };
 
@@ -54,10 +54,10 @@ const TeamLevel: React.FC = () => {
           textArea.select();
           document.execCommand('copy');
           document.body.removeChild(textArea);
-          toast.success("Referral Link Copied!");
+          toast.success(t.team.referralLinkCopied);
       } catch (err) {
           console.error('Failed to copy:', err);
-          toast.error("Failed to copy link");
+          toast.error(t.team.failedToCopy);
       }
   };
 
@@ -173,7 +173,7 @@ const TeamLevel: React.FC = () => {
                                             <span className={`font-bold ${isCurrent ? 'text-white' : 'text-slate-300'}`}>
                                                 {level.desc || `${t.team.levelReward} ${level.level}`}
                                             </span>
-                                            {isCurrent && <span className="text-[10px] text-macoin-400 font-medium uppercase tracking-wider">Current Plan</span>}
+                                            {isCurrent && <span className="text-[10px] text-macoin-400 font-medium uppercase tracking-wider">{t.team.currentPlan}</span>}
                                         </div>
                                     </div>
                                 </td>
@@ -182,7 +182,7 @@ const TeamLevel: React.FC = () => {
                                         <span className={`font-mono font-bold text-lg ${isActive ? 'text-green-400' : 'text-slate-500'}`}>
                                             {level.countRequired}
                                         </span>
-                                        <span className="text-[10px] text-slate-500 uppercase">Active Users</span>
+                                        <span className="text-[10px] text-slate-500 uppercase">{t.team.activeUsers}</span>
                                     </div>
                                 </td>
                                 <td className="p-4 text-center">
@@ -203,12 +203,12 @@ const TeamLevel: React.FC = () => {
                                     ) : isActive ? (
                                         <span className="text-green-500 text-xs font-bold uppercase tracking-wider flex items-center justify-end gap-1">
                                             <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                                            Unlocked
+                                            {t.team.unlocked}
                                         </span>
                                     ) : (
                                         <span className="text-slate-600 text-xs font-medium uppercase tracking-wider flex items-center justify-end gap-1">
                                             <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
-                                            Locked
+                                            {t.team.locked}
                                         </span>
                                     )}
                                 </td>
@@ -233,7 +233,7 @@ const TeamLevel: React.FC = () => {
                         {t.team.networkSubtitle}
                         {account && (
                             <button onClick={copyReferralLink} className="text-macoin-400 hover:text-macoin-300 font-bold flex items-center gap-1 ml-2">
-                                <Copy size={12} /> Link
+                                <Copy size={12} /> {t.team.link}
                             </button>
                         )}
                     </div>
@@ -272,7 +272,7 @@ const TeamLevel: React.FC = () => {
                                 </td>
                                 <td className="p-4">
                                     <span className={`px-2 py-1 text-xs font-bold rounded-full whitespace-nowrap ${item.ticketAmount > 0n ? 'bg-green-900/20 text-green-400' : 'bg-slate-800 text-slate-500'}`}>
-                                        {item.ticketAmount > 0n ? t.team.netActive : 'Inactive'}
+                                        {item.ticketAmount > 0n ? t.team.netActive : t.team.inactive}
                                     </span>
                                 </td>
                                 <td className="p-4 text-right text-slate-500 text-sm whitespace-nowrap">

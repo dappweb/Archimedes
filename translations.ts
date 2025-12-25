@@ -121,7 +121,17 @@ export const translations = {
       requiredLiquidity: '需要: {amount} USDT 算力',
       selected: '已选择',
       select: '选择',
-      subscribe: '认购'
+      subscribe: '认购',
+      approvingUSDT: '正在授权 USDT...',
+      usdtApproved: 'USDT 已授权',
+      invalidARCPrice: '无效的 ARC 价格',
+      insufficientARC: 'ARC 余额不足！需要 ~{amount} ARC',
+      approvingARC: '正在授权 ARC...',
+      arcApproved: 'ARC 已授权',
+      reinvestSuccess: '复投成功！',
+      reinvestFailed: '复投失败: ',
+      reinvestBtn: '复投 (50% ARC)',
+      principalOnly: '(仅本金)'
     },
     team: {
       title: 'V系列 极差裂变机制',
@@ -185,6 +195,7 @@ export const translations = {
       bindReferrerTip: '请先前往挖矿面板绑定推荐人',
       tax5: '(5% 税)',
       tax0: '(0% 税)',
+      taxRate: '{rate}% 税',
       active: '(生效中)',
       poolUSDT: '池子流动性 (USDT)',
       poolARC: '池子流动性 (ARC)',
@@ -417,7 +428,17 @@ export const translations = {
       requiredLiquidity: 'Required: {amount} USDT Liquidity',
       selected: 'Selected',
       select: 'Select',
-      subscribe: 'Subscribe'
+      subscribe: 'Subscribe',
+      approvingUSDT: 'Approving USDT...',
+      usdtApproved: 'USDT Approved',
+      invalidARCPrice: 'Invalid ARC Price',
+      insufficientARC: 'Insufficient ARC! Need ~{amount} ARC',
+      approvingARC: 'Approving ARC...',
+      arcApproved: 'ARC Approved',
+      reinvestSuccess: 'Reinvestment Successful!',
+      reinvestFailed: 'Reinvest Failed: ',
+      reinvestBtn: 'Reinvest (50% ARC)',
+      principalOnly: '(Principal Only)'
     },
     team: {
       title: 'V-Series Differential Mechanism',
@@ -481,6 +502,7 @@ export const translations = {
       bindReferrerTip: 'Please go to Mining panel to bind a referrer first',
       tax5: '(5% Tax)',
       tax0: '(0% Tax)',
+      taxRate: '{rate}% Tax',
       active: '(Active)',
       poolUSDT: 'Pool Liquidity (USDT)',
       poolARC: 'Pool Liquidity (ARC)',

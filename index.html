@@ -1,137 +1,16 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: blob:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https: blob:; font-src 'self' data: https:; connect-src 'self' https: wss:;">
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Archimedes | DeFi 4.0 Mining</title>
-    <!-- Try to use unpkg as fallback or primary if cdn.tailwindcss is blocked -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              macoin: {
-                50: '#f5f3ff',
-                100: '#ede9fe',
-                200: '#ddd6fe',
-                300: '#c4b5fd',
-                400: '#a78bfa',
-                500: '#8b5cf6', // Purple
-                600: '#7c3aed',
-                700: '#6d28d9',
-                800: '#5b21b6',
-                900: '#4c1d95',
-                950: '#2e1065',
-              },
-              dark: {
-                bg: '#000000',
-                card: '#111111',
-                card2: '#1a1a1a',
-                border: '#2a2a2a',
-              }
-            },
-            backgroundImage: {
-              'primary-gradient': 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', // Blue to Purple (Match screenshot)
-              'gold-gradient': 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)', // Amber to Yellow
-              'hero-glow': 'radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.15), rgba(0, 0, 0, 0))',
-            },
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['Fira Code', 'monospace'],
-            },
-          }
-        }
-      }
-    </script>
-    <style>
-      body {
-        background-color: #000000; /* Dark Background */
-        color: #f8fafc; /* Slate 50 Text */
-        font-family: 'Inter', sans-serif;
-        background-image: radial-gradient(circle at 50% 0%, rgba(29, 29, 41, 0.4), #000000 60%);
-        min-height: 100vh;
-      }
-      .glass-panel {
-        background: rgba(18, 18, 24, 0.7);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.6);
-      }
-      .glass-panel:hover {
-        border-color: rgba(139, 92, 246, 0.3);
-        box-shadow: 0 8px 32px -8px rgba(139, 92, 246, 0.15);
-      }
-      .neon-border {
-         box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
-         border: 1px solid rgba(139, 92, 246, 0.5);
-      }
-      /* Ensure grid works even if Tailwind fails partially */
-      .grid-cols-3 {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      /* Mobile-specific optimizations */
-      @media (max-width: 640px) {
-        /* Prevent horizontal scroll */
-        body {
-          overflow-x: hidden;
-        }
-
-        /* Ensure touch targets are at least 44x44px */
-        button, a, input[type="button"], input[type="submit"] {
-          min-height: 44px;
-          min-width: 44px;
-        }
-
-        /* Better text readability on mobile */
-        body {
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-      }
-
-      /* Safe area for mobile devices (notch support) */
-      @supports (padding: max(0px)) {
-        body {
-          padding-left: max(12px, env(safe-area-inset-left));
-          padding-right: max(12px, env(safe-area-inset-right));
-        }
-        .safe-area-bottom {
-          padding-bottom: env(safe-area-inset-bottom);
-        }
-      }
-
-      /* Smooth scrolling */
-      html {
-        scroll-behavior: smooth;
-      }
-
-      /* Custom scrollbar for desktop */
-      @media (min-width: 768px) {
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-          background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>archimedes</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
