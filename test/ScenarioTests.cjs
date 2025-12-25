@@ -149,6 +149,10 @@ describe("Archimedes System Scenario Tests", function () {
     // u1 buys 100U ticket (Cap 300U)
     await protocol.connect(u1).buyTicket(TICKET_100);
     await protocol.connect(u1).stakeLiquidity(7);
+
+    // FIX: Add liquidity to make ARC Price ~1 USDT
+    // ARC Pool: 1,000,000. We need ~1,000,000 USDT in pool.
+    await usdt.transfer(await protocol.getAddress(), ethers.parseEther("1000000"));
     
     // u1 Cap info
     let userInfo = await protocol.userInfo(u1.address);

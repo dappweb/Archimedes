@@ -1,5 +1,6 @@
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { 
+  injectedWallet,
   tokenPocketWallet,
   metaMaskWallet,
   walletConnectWallet,
@@ -18,6 +19,7 @@ const connectors = connectorsForWallets(
     {
       groupName: 'Recommended',
       wallets: [
+        injectedWallet,
         tokenPocketWallet,
         metaMaskWallet,
         trustWallet,
