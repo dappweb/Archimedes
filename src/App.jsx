@@ -33,19 +33,17 @@ function App() {
   const [activeTab, setActiveTab] = useState('buy');
   const [currentPage, setCurrentPage] = useState('home');
 
-  if (currentPage === 'reward') {
-    return <RewardPage onBack={() => setCurrentPage('home')} />;
-  }
-
-  if (currentPage === 'buyHashrate') {
-    return <BuyHashratePage onBack={() => setCurrentPage('home')} />;
-  }
-
   return (
     <div className="app-container">
       <Toaster position="top-center" />
-      {/* Header */}
-      <header className="header">
+      {currentPage === 'reward' ? (
+        <RewardPage onBack={() => setCurrentPage('home')} />
+      ) : currentPage === 'buyHashrate' ? (
+        <BuyHashratePage onBack={() => setCurrentPage('home')} />
+      ) : (
+        <>
+          {/* Header */}
+          <header className="header">
         <div className="header-left">
             <div className="brand">
                 <LogoIcon />
@@ -261,6 +259,8 @@ function App() {
       </div>
 
       <div style={{height: '40px'}}></div>
+      </>
+      )}
     </div>
   )
 }

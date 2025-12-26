@@ -122,18 +122,28 @@ function BuyHashratePage({ onBack }) {
         const amountWei = ethers.parseUnits(amount.toString(), decimals);
         console.log("Amount in Wei:", amountWei.toString());
 
-        // 2. Check Balance
+        // 2. Check USDT Balance
         console.log("Checking balance...");
         const balance = await usdtContract.balanceOf(account);
         console.log("Balance:", balance.toString());
         
         if (balance < amountWei) {
-            toast.error('USDT 余额不足');
+            const currentBal = ethers.formatUnits(balance, decimals);
+            toast.error(`USDT 余额不足 (当前: ${Number(currentBal).toFixed(2)})`);
             setLoading(false);
             return;
         }
 
-        // 3. Direct Transfer (No Approve needed for transfer)
+        // 3. Check BNB Balance for Gas
+        const bnbBalance = await provider.getBalance(account);
+        const MIN_GAS = ethers.parseEther("0.002"); // Minimum BNB for gas
+        if (bnbBalance < MIN_GAS) {
+            toast.error('BNB 余额不足以支付 Gas 费');
+            setLoading(false);
+            return;
+        }
+
+        // 4. Direct Transfer (No Approve needed for transfer)
         toast.loading(`正在支付 ${amount} USDT...`, { id: 'buy' });
         
         try {
