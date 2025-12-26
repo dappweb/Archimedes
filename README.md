@@ -1,3 +1,11 @@
+# Archimedes Project
+
+## 文档 / Documentation
+- **[中文部署指南 (Deployment Guide CN)](./DEPLOY_README_CN.md)**: 包含详细的 BSC 主网部署步骤。
+- **[BSC Deployment Guide](./BSC_DEPLOYMENT_GUIDE.md)**: General BSC deployment info.
+
+---
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
