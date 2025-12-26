@@ -10,11 +10,7 @@ const BackIcon = () => (
 function RewardPage({ onBack }) {
   const [activeTab, setActiveTab] = useState('abc');
 
-  const records = [
-    { date: '2025/03/04 12:34', amount: '5000' },
-    { date: '2025/03/04 12:34', amount: '5000' },
-    { date: '2025/03/04 12:34', amount: '5000' },
-  ];
+  const records = [];
 
   return (
     <div className="reward-page">
@@ -29,18 +25,18 @@ function RewardPage({ onBack }) {
 
       {/* Total Rewards */}
       <div className="total-section">
-        <div className="total-amount">125,981,001</div>
+        <div className="total-amount">0</div>
         <div className="total-label">总计奖励</div>
       </div>
 
       {/* Stats Cards */}
       <div className="reward-stats">
         <div className="reward-stat-card">
-          <div className="stat-amount">125,981,001</div>
+          <div className="stat-amount">0</div>
           <div className="stat-type">ABC奖励</div>
         </div>
         <div className="reward-stat-card">
-          <div className="stat-amount">125,981,001</div>
+          <div className="stat-amount">0</div>
           <div className="stat-type">DSC奖励</div>
         </div>
       </div>
@@ -48,22 +44,15 @@ function RewardPage({ onBack }) {
       {/* Claim Cards */}
       <div className="claim-card">
         <div className="claim-row">
-          <span className="claim-label">可领取 (DSC) : 3456</span>
-          <button className="claim-btn">领取</button>
+          <span className="claim-label">可领取 (DSC) : 0</span>
+          <button className="claim-btn" disabled style={{opacity: 0.5}}>领取</button>
         </div>
       </div>
 
       <div className="claim-card">
         <div className="claim-row">
-          <span className="claim-label">可领取 (ABC) : 3456</span>
-          <button className="claim-btn">领取</button>
-        </div>
-      </div>
-
-      <div className="claim-card">
-        <div className="claim-row">
-          <span className="claim-label">可领取 (DSC) : 3456</span>
-          <button className="claim-btn">领取</button>
+          <span className="claim-label">可领取 (ABC) : 0</span>
+          <button className="claim-btn" disabled style={{opacity: 0.5}}>领取</button>
         </div>
       </div>
 
@@ -97,12 +86,16 @@ function RewardPage({ onBack }) {
 
       {/* Records Table */}
       <div className="records-section">
-        {records.map((record, index) => (
+        {records.length > 0 ? records.map((record, index) => (
           <div className="record-row" key={index}>
             <span className="record-date">{record.date}</span>
             <span className="record-amount">{record.amount}</span>
           </div>
-        ))}
+        )) : (
+            <div className="record-row" style={{justifyContent: 'center', color: '#999'}}>
+                <span>暂无记录</span>
+            </div>
+        )}
       </div>
 
       <div style={{height: '40px'}}></div>

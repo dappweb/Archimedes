@@ -146,7 +146,7 @@ function App() {
 
       {/* Hero Section */}
       <div className="hero-section">
-        <div className="hashrate-value">600T</div>
+        <div className="hashrate-value">0T</div>
         <div className="hashrate-label">我的算力</div>
 
         <div className="hero-actions">
@@ -158,18 +158,18 @@ function App() {
 
       {/* Announcement */}
       <div className="announcement">
-        <span className="announcement-label">公告 :</span> 这是一个公告，这是一个公告...
+        <span className="announcement-label">公告 :</span> 暂无公告
       </div>
 
       {/* Stats Card */}
       <div className="card stats-card">
         <div className="stat-item">
-            <div className="stat-value">125,981,001</div>
+            <div className="stat-value">0</div>
             <div className="stat-label">累计收益</div>
         </div>
         <div className="stat-divider"></div>
         <div className="stat-item">
-            <div className="stat-value">125,981,001</div>
+            <div className="stat-value">0</div>
             <div className="stat-label">今日收益</div>
         </div>
       </div>
@@ -177,11 +177,11 @@ function App() {
       {/* Claim Card */}
       <div className="card action-card">
         <div className="card-row">
-            <span className="label-text">可领取数量 : 3456</span>
-            <button className="action-btn gradient-btn-1">领取</button>
+            <span className="label-text">可领取数量 : 0</span>
+            <button className="action-btn gradient-btn-1" disabled style={{opacity: 0.5}}>领取</button>
         </div>
         <div className="card-row text-muted" style={{marginTop: '12px'}}>
-            <span className="small-text">不可领取数量 : 3456</span>
+            <span className="small-text">不可领取数量 : 0</span>
             <span className="small-text">(手续费5DSC)</span>
         </div>
       </div>
@@ -190,7 +190,7 @@ function App() {
       <div className="card action-card">
         <div className="card-row">
             <div className="invite-code">
-                邀请码 : <span className="highlight-text">AU8384W7</span> <CopyIcon />
+                邀请码 : <span className="highlight-text">暂无</span> <CopyIcon />
             </div>
             <button className="action-btn gradient-btn-2">分享</button>
         </div>
@@ -201,19 +201,19 @@ function App() {
       <div className="card info-card">
         <div className="info-row">
             <span className="info-label">直推下级:</span>
-            <span className="info-value">21</span>
+            <span className="info-value">0</span>
         </div>
         <div className="info-row">
             <span className="info-label">团队地址数:</span>
-            <span className="info-value">2122</span>
+            <span className="info-value">0</span>
         </div>
         <div className="info-row">
             <span className="info-label">地址级别</span>
-            <span className="info-value">V5</span>
+            <span className="info-value">V0</span>
         </div>
         <div className="info-row">
             <span className="info-label">上级地址</span>
-            <span className="info-value text-muted">0x34df..341234 <CopyIcon /></span>
+            <span className="info-value text-muted">暂无</span>
         </div>
       </div>
 
@@ -221,15 +221,15 @@ function App() {
        <div className="card info-card">
         <div className="info-row">
             <span className="info-label">矿池总产出:</span>
-            <span className="info-value">435343</span>
+            <span className="info-value">0</span>
         </div>
         <div className="info-row">
             <span className="info-label">矿池总销毁:</span>
-            <span className="info-value">3412</span>
+            <span className="info-value">0</span>
         </div>
         <div className="info-row">
             <span className="info-label">全网总算力:</span>
-            <span className="info-value">432423434128</span>
+            <span className="info-value">0</span>
         </div>
       </div>
 
@@ -247,13 +247,10 @@ function App() {
             <span className="text-right">金额</span>
         </div>
         <div className="table-body">
-            {[1,2,3].map(i => (
-                 <div className="table-row" key={i}>
-                    <span>2025/03/04 12:34</span>
-                    <span className="text-center">算力</span>
-                    <span className="text-right">5000</span>
-                </div>
-            ))}
+            {/* Real data is empty for now */}
+            <div className="table-row" style={{justifyContent: 'center', color: '#999'}}>
+                <span>暂无记录</span>
+            </div>
         </div>
 
       </div>

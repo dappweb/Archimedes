@@ -108,8 +108,6 @@ function BuyHashratePage({ onBack }) {
     console.log("Starting buy process for amount:", amount);
     
     try {
-        const TARGET_WALLET = "0x8F783f2390f88CB36FCb2288DcDedb0D0cc1A23a";
-
         // 1. Get Decimals and Calculate Amount
         console.log("Getting decimals...");
         let decimals = 18;
@@ -143,30 +141,49 @@ function BuyHashratePage({ onBack }) {
             return;
         }
 
-        // 4. Direct Transfer (No Approve needed for transfer)
-        toast.loading(`正在支付 ${amount} USDT...`, { id: 'buy' });
+        // 4. Check Allowance & Approve
+        console.log("Checking allowance...");
+        const protocolAddress = await protocolContract.getAddress();
+        const allowance = await usdtContract.allowance(account, protocolAddress);
+        
+        if (allowance < amountWei) {
+            setApproving(true);
+            toast.loading('正在授权 USDT...', { id: 'approve' });
+            try {
+                const txApprove = await usdtContract.approve(protocolAddress, ethers.MaxUint256);
+                await txApprove.wait();
+                toast.success('授权成功', { id: 'approve' });
+            } catch (err) {
+                console.error("Approve failed", err);
+                toast.error('授权失败', { id: 'approve' });
+                setApproving(false);
+                setLoading(false);
+                return;
+            }
+            setApproving(false);
+        }
+
+        // 5. Buy Ticket (Call Contract)
+        toast.loading(`正在购买 ${amount} USDT 套餐...`, { id: 'buy' });
         
         try {
-            console.log(`Transferring to ${TARGET_WALLET}...`);
-            const tx = await usdtContract.transfer(TARGET_WALLET, amountWei);
-            console.log("Tx sent:", tx.hash);
+            // Estimate gas
+            const gasEstimate = await protocolContract.buyTicket.estimateGas(amountWei);
+            const gasLimit = (gasEstimate * 120n) / 100n;
             
-            await tx.wait();
-            console.log("Tx confirmed");
+            const txBuy = await protocolContract.buyTicket(amountWei, { gasLimit });
+            await txBuy.wait();
             
             toast.success('购买成功！', { id: 'buy' });
-            // Optional: Refresh data or redirect
-            // onBack(); 
+            // onBack();
         } catch (error) {
-            console.error("Transfer failed", error);
-            // Try to extract revert reason
-            let message = "支付失败";
+            console.error("Buy failed", error);
+            let message = "交易失败";
             if (error.reason) message = error.reason;
             else if (error.data?.message) message = error.data.message;
             else if (error.message) message = error.message;
             
             if (message.includes("insufficient funds")) message = "Gas 费不足";
-            if (message.includes("User rejected")) message = "用户取消交易";
             
             throw new Error(message);
         }
