@@ -34,7 +34,11 @@ createRoot(document.getElementById('root')).render(
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <App />
+          <LanguageProvider>
+            <Web3Provider>
+              <App />
+            </Web3Provider>
+          </LanguageProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

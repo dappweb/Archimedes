@@ -604,6 +604,16 @@ const MiningPanel: React.FC = () => {
                   {isBindingReferrer ? t.referrer.binding : t.referrer.bind}
                 </button>
               </div>
+              
+              {/* TEST HELPER: Use Default Referrer */}
+              <div className="mt-2 text-right">
+                <button 
+                    onClick={() => setInputReferrerAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")}
+                    className="text-xs text-amber-500/70 hover:text-amber-400 underline"
+                >
+                    [测试] 使用默认推荐人地址
+                </button>
+              </div>
             </div>
           </div>
         </div>

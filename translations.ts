@@ -39,7 +39,7 @@ export const translations = {
     referrer: {
       required: '需要绑定推荐人',
       requiredDesc: '在使用系统前，您需要先绑定推荐人地址。请输入推荐人钱包地址：',
-      enterAddress: '输入推荐人地址',
+      enterAddress: '输入推荐人钱包地址',
       bind: '绑定推荐人',
       binding: '绑定中...',
       bindError: '绑定失败',
@@ -150,7 +150,7 @@ export const translations = {
       subtitle: '推广有效地址，获取丰厚极差收益',
       bindTitle: '绑定上级',
       bindDesc: '请输入邀请人的钱包地址进行绑定',
-      bindPlaceholder: '输入邀请码或地址',
+      bindPlaceholder: '输入推荐人钱包地址',
       bindButton: '确认绑定',
       bindSuccess: '绑定成功！',
       colLevel: '等级 (Level)',

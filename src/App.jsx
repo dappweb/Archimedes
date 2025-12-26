@@ -2,6 +2,9 @@ import { useState } from 'react'
 import './App.css'
 import RewardPage from './RewardPage'
 import BuyHashratePage from './BuyHashratePage'
+import { useWeb3 } from '../Web3Context'
+import { ethers } from 'ethers'
+import toast, { Toaster } from 'react-hot-toast'
 
 const MenuIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -48,6 +51,7 @@ function App() {
 
   return (
     <div className="app-container">
+      <Toaster position="top-center" />
       {/* Header */}
       <header className="header">
         <div className="header-left">

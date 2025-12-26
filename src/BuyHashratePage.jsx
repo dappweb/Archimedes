@@ -45,29 +45,107 @@ const CoinIcon = () => (
 )
 
 function BuyHashratePage({ onBack }) {
+  const { protocolContract, usdtContract, account, isConnected } = useWeb3();
+  const [loading, setLoading] = useState(false);
+  const [approving, setApproving] = useState(false);
+
+  // 合约定义的有效金额: 100, 300, 500, 1000
   const hashratePlans = [
     {
       id: 1,
-      title: '初始算力',
-      hashrate: '1180T=1.83T',
-      price: 3000,
-      power: '1380T'
+      title: '体验节点',
+      hashrate: '100 USDT',
+      price: 100,
+      power: '100 算力'
     },
     {
       id: 2,
-      title: '至尊节点',
-      hashrate: '1380U',
-      price: 'A级36倍DSC',
-      power: '1380T'
+      title: '初级节点',
+      hashrate: '300 USDT',
+      price: 300,
+      power: '300 算力'
     },
     {
       id: 3,
-      title: '超级节点',
-      hashrate: '1380U',
-      price: 'A级36倍DSC',
-      power: '1380T'
+      title: '中级节点',
+      hashrate: '500 USDT',
+      price: 500,
+      power: '500 算力'
+    },
+    {
+        id: 4,
+        title: '高级节点',
+        hashrate: '1000 USDT',
+        price: 1000,
+        power: '1000 算力'
     }
   ];
+
+  const handleBuy = async (amount) => {
+    if (!isConnected || !account) {
+        toast.error('请先连接钱包');
+        return;
+    }
+    if (!protocolContract || !usdtContract) {
+        toast.error('合约未加载');
+        return;
+    }
+
+    setLoading(true);
+    try {
+        const amountWei = ethers.parseEther(amount.toString());
+        const protocolAddress = await protocolContract.getAddress();
+
+        // 1. Check Balance
+        const balance = await usdtContract.balanceOf(account);
+        if (balance < amountWei) {
+            toast.error('USDT 余额不足');
+            setLoading(false);
+            return;
+        }
+
+        // 2. Check Allowance
+        const allowance = await usdtContract.allowance(account, protocolAddress);
+        
+        if (allowance < amountWei) {
+            setApproving(true);
+            toast.loading('正在授权 USDT...', { id: 'approve' });
+            try {
+                const txApprove = await usdtContract.approve(protocolAddress, ethers.MaxUint256);
+                await txApprove.wait();
+                toast.success('授权成功', { id: 'approve' });
+            } catch (err) {
+                console.error(err);
+                toast.error('授权失败', { id: 'approve' });
+                setApproving(false);
+                setLoading(false);
+                return;
+            }
+            setApproving(false);
+        }
+
+        // 3. Buy Ticket
+        toast.loading(`正在购买 ${amount} USDT 套餐...`, { id: 'buy' });
+        const txBuy = await protocolContract.buyTicket(amountWei);
+        await txBuy.wait();
+        
+        toast.success('购买成功！', { id: 'buy' });
+        
+        // Optional: Refresh data or redirect
+        // onBack(); 
+
+    } catch (err) {
+        console.error(err);
+        const errorMsg = err.reason || err.message || '购买失败';
+        if (errorMsg.includes('Active ticket exists')) {
+             toast.error('您已有生效的订单，请先完成或赎回', { id: 'buy' });
+        } else {
+             toast.error('交易失败: ' + (err.reason || '未知错误'), { id: 'buy' });
+        }
+    } finally {
+        setLoading(false);
+    }
+  };
 
   return (
     <div className="buy-hashrate-page">
