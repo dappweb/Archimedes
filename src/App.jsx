@@ -146,11 +146,15 @@ function App() {
 
       {/* Hero Section */}
       <div className="hero-section">
-        <div className="hashrate-value">0T</div>
+        <div className="hashrate-value">{userTicket && userTicket.liquidityProvided ? ethers.formatEther(userTicket.amount) : '0'}T</div>
         <div className="hashrate-label">我的算力</div>
 
         <div className="hero-actions">
-           <button className="buy-btn" onClick={() => setCurrentPage('buyHashrate')}>购买算力</button>
+           {userTicket && userTicket.amount > 0 && !userTicket.liquidityProvided ? (
+             <button className="buy-btn" style={{backgroundColor: '#9C40FF'}} onClick={handleStake}>立即开启挖矿</button>
+           ) : (
+             <button className="buy-btn" onClick={() => setCurrentPage('buyHashrate')}>购买算力</button>
+           )}
         </div>
 
         <div className="reward-badge" onClick={() => setCurrentPage('reward')}>奖励</div>

@@ -26,6 +26,7 @@ export const PROTOCOL_ABI = [
   "function swapARCToUSDT(uint256 arcAmount) external",
   "function swapUSDTToDES(uint256 usdtAmount) external",
   "function swapDESToUSDT(uint256 desAmount) external",
+  "function pendingRewards(address) view returns (uint256)",
   "function userInfo(address) view returns (address referrer, uint256 activeDirects, uint256 teamCount, uint256 totalRevenue, uint256 currentCap, bool isActive)",
   "function userTicket(address) view returns (uint256 amount, uint256 requiredLiquidity, uint256 purchaseTime, bool liquidityProvided, uint256 liquidityAmount, uint256 startTime, uint256 cycleDays, bool redeemed)",
   "function getDirectReferrals(address) view returns (address[])",

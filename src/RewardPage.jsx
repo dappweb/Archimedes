@@ -75,15 +75,15 @@ function RewardPage({ onBack }) {
 
       {/* Total Rewards */}
       <div className="total-section">
-        <div className="total-amount">0</div>
+        <div className="total-amount">{pendingRewards ? parseFloat(pendingRewards).toFixed(4) : '0'}</div>
         <div className="total-label">总计奖励</div>
       </div>
 
       {/* Stats Cards */}
       <div className="reward-stats">
         <div className="reward-stat-card">
-          <div className="stat-amount">0</div>
-          <div className="stat-type">ABC奖励</div>
+          <div className="stat-amount">{pendingRewards ? parseFloat(pendingRewards).toFixed(4) : '0'}</div>
+          <div className="stat-type">ARC奖励</div>
         </div>
         <div className="reward-stat-card">
           <div className="stat-amount">0</div>
@@ -94,14 +94,21 @@ function RewardPage({ onBack }) {
       {/* Claim Cards */}
       <div className="claim-card">
         <div className="claim-row">
-          <span className="claim-label">可领取 (DSC) : 0</span>
-          <button className="claim-btn" disabled style={{opacity: 0.5}}>领取</button>
+          <span className="claim-label">可领取 (ARC) : {pendingRewards ? parseFloat(pendingRewards).toFixed(4) : '0'}</span>
+          <button 
+            className="claim-btn" 
+            onClick={handleClaim}
+            disabled={claiming || !pendingRewards || parseFloat(pendingRewards) <= 0}
+            style={{opacity: (claiming || !pendingRewards || parseFloat(pendingRewards) <= 0) ? 0.5 : 1}}
+          >
+            {claiming ? '领取中...' : '领取'}
+          </button>
         </div>
       </div>
 
       <div className="claim-card">
         <div className="claim-row">
-          <span className="claim-label">可领取 (ABC) : 0</span>
+          <span className="claim-label">可领取 (DSC) : 0</span>
           <button className="claim-btn" disabled style={{opacity: 0.5}}>领取</button>
         </div>
       </div>
