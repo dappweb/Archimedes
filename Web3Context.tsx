@@ -70,6 +70,11 @@ interface Web3ContextType {
   isOwner: boolean;
   referrerAddress: string | null;
   checkReferrerStatus: () => Promise<void>;
+  userInfo: any;
+  userTicket: any;
+  pendingRewards: string;
+  refreshUserData: () => Promise<void>;
+  dataLoading: boolean;
 }
 
 const Web3Context = createContext<Web3ContextType | undefined>(undefined);
@@ -101,6 +106,12 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [hasReferrer, setHasReferrer] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [referrerAddress, setReferrerAddress] = useState<string | null>(null);
+
+  // New State for User Data
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userTicket, setUserTicket] = useState<any>(null);
+  const [pendingRewards, setPendingRewards] = useState<string>("0");
+  const [dataLoading, setDataLoading] = useState(false);
 
   useEffect(() => {
     if (signer) {

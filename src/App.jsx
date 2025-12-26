@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import RewardPage from './RewardPage'
 import BuyHashratePage from './BuyHashratePage'
@@ -164,7 +164,7 @@ function App() {
       {/* Stats Card */}
       <div className="card stats-card">
         <div className="stat-item">
-            <div className="stat-value">0</div>
+            <div className="stat-value">{userInfo ? parseFloat(ethers.formatEther(userInfo.totalRevenue)).toFixed(2) : '0'}</div>
             <div className="stat-label">累计收益</div>
         </div>
         <div className="stat-divider"></div>
@@ -177,8 +177,8 @@ function App() {
       {/* Claim Card */}
       <div className="card action-card">
         <div className="card-row">
-            <span className="label-text">可领取数量 : 0</span>
-            <button className="action-btn gradient-btn-1" disabled style={{opacity: 0.5}}>领取</button>
+            <span className="label-text">可领取数量 : {pendingRewards ? parseFloat(pendingRewards).toFixed(4) : '0'}</span>
+            <button className="action-btn gradient-btn-1" onClick={() => setCurrentPage('reward')}>领取</button>
         </div>
         <div className="card-row text-muted" style={{marginTop: '12px'}}>
             <span className="small-text">不可领取数量 : 0</span>
@@ -190,9 +190,10 @@ function App() {
       <div className="card action-card">
         <div className="card-row">
             <div className="invite-code">
-                邀请码 : <span className="highlight-text">暂无</span> <CopyIcon />
+                邀请码 : <span className="highlight-text">{account ? formatAddress(account) : '暂无'}</span> 
+                <span onClick={() => copyToClipboard(account ? window.location.origin + '?ref=' + account : '')}><CopyIcon /></span>
             </div>
-            <button className="action-btn gradient-btn-2">分享</button>
+            <button className="action-btn gradient-btn-2" onClick={() => copyToClipboard(window.location.origin + '?ref=' + account)}>分享</button>
         </div>
         <button className="full-width-btn gradient-btn-3">团队详情</button>
       </div>
@@ -201,11 +202,11 @@ function App() {
       <div className="card info-card">
         <div className="info-row">
             <span className="info-label">直推下级:</span>
-            <span className="info-value">0</span>
+            <span className="info-value">{userInfo ? userInfo.activeDirects.toString() : '0'}</span>
         </div>
         <div className="info-row">
             <span className="info-label">团队地址数:</span>
-            <span className="info-value">0</span>
+            <span className="info-value">{userInfo ? userInfo.teamCount.toString() : '0'}</span>
         </div>
         <div className="info-row">
             <span className="info-label">地址级别</span>
@@ -213,7 +214,7 @@ function App() {
         </div>
         <div className="info-row">
             <span className="info-label">上级地址</span>
-            <span className="info-value text-muted">暂无</span>
+            <span className="info-value text-muted">{userInfo ? formatAddress(userInfo.referrer) : '暂无'}</span>
         </div>
       </div>
 

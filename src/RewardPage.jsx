@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import './RewardPage.css'
+import { useWeb3 } from '../Web3Context'
+import { ethers } from 'ethers'
+import toast from 'react-hot-toast'
 
 const BackIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -9,6 +12,53 @@ const BackIcon = () => (
 
 function RewardPage({ onBack }) {
   const [activeTab, setActiveTab] = useState('abc');
+  const { pendingRewards, protocolContract, desContract, refreshUserData, account } = useWeb3();
+  const [claiming, setClaiming] = useState(false);
+
+  // Claim Rewards
+  const handleClaim = async () => {
+    if (!protocolContract || !desContract) return;
+    setClaiming(true);
+    toast.loading('正在领取...', { id: 'claim' });
+    try {
+        // Check DES balance for fee
+        // Fee logic: 5% of value + 3 DES
+        // Since we can't easily calculate exact value on frontend without price, 
+        // we assume user needs some DES.
+        // Ideally we check desContract.balanceOf(account) >= 3 DES at least.
+        const desBal = await desContract.balanceOf(account);
+        const minFee = ethers.parseEther("3");
+        if (desBal < minFee) {
+            toast.error('DES 余额不足支付手续费 (需至少 3 DES + 5% 价值)');
+            setClaiming(false);
+            return;
+        }
+
+        // Check allowance of DES to Protocol?
+        // Protocol uses transferFrom for DES fee.
+        const protocolAddr = await protocolContract.getAddress();
+        const allowance = await desContract.allowance(account, protocolAddr);
+        if (allowance < ethers.MaxUint256 / 2n) {
+             toast.loading('正在授权 DES...', { id: 'claim' });
+             const txApprove = await desContract.approve(protocolAddr, ethers.MaxUint256);
+             await txApprove.wait();
+             toast.success('授权成功', { id: 'claim' });
+        }
+
+        toast.loading('正在确认交易...', { id: 'claim' });
+        const tx = await protocolContract.claimRewards();
+        await tx.wait();
+        toast.success('领取成功！', { id: 'claim' });
+        refreshUserData();
+    } catch (err) {
+        console.error("Claim failed", err);
+        let msg = err.reason || err.message;
+        if (msg.includes("Insufficient DES")) msg = "DES 余额不足支付手续费";
+        toast.error('领取失败: ' + msg, { id: 'claim' });
+    } finally {
+        setClaiming(false);
+    }
+  };
 
   const records = [];
 
@@ -62,7 +112,7 @@ function RewardPage({ onBack }) {
           className={`tab-btn ${activeTab === 'abc' ? 'active' : ''}`}
           onClick={() => setActiveTab('abc')}
         >
-          ABC全池奖励
+          ARC奖励记录
         </button>
         <button
           className={`tab-btn ${activeTab === 'dsc' ? 'active' : ''}`}
