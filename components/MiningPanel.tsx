@@ -319,127 +319,66 @@ const MiningPanel: React.FC = () => {
       if (!protocolContract || !usdtContract || !arcContract) return;
       setTxPending(true);
       try {
-          // Total required value (USDT terms)
-          const requiredValue = ethers.parseEther(selectedTicket.requiredLiquidity.toString());
-          const usdtPart = requiredValue / 2n;
-          const arcValuePart = requiredValue / 2n;
+          const totalReqValue = ethers.parseEther(selectedTicket.requiredLiquidity.toString());
+          const usdtPart = totalReqValue / 2n;
+          const arcValuePart = totalReqValue / 2n;
 
-          // Calculate ARC needed
-          // ARC Amount = (Value * 1e18) / Price
-          // Ensure arcPrice is valid
-          if (!arcPrice || arcPrice === 0n) {
-             toast.error(t.mining.invalidARCPrice);
-             return;
-          }
-          const arcPart = (arcValuePart * ethers.parseEther("1")) / arcPrice;
-
-          // Check Balances
-          const usdtBal = await usdtContract.balanceOf(account);
-          const arcBal = await arcContract.balanceOf(account);
-
-          if (usdtBal < usdtPart || arcBal < arcPart) {
-              toast.error(t.mining.insufficientReinvest);
+          // 1. Check USDT Balance & Allowance
+          const usdtBalance = await usdtContract.balanceOf(account);
+          if (usdtBalance < usdtPart) {
+              toast.error(`${t.mining.insufficientUSDT} (Need ${ethers.formatEther(usdtPart)})`);
               return;
           }
-
-          // Check Allowances
+          
           const protocolAddr = await protocolContract.getAddress();
           const usdtAllow = await usdtContract.allowance(account, protocolAddr);
-          const arcAllow = await arcContract.allowance(account, protocolAddr);
-
           if (usdtAllow < usdtPart) {
-              toast(t.mining.approvingUSDT);
-              const tx = await usdtContract.approve(protocolAddr, ethers.MaxUint256);
-              await tx.wait();
-              toast.success(t.mining.usdtApproved);
+               toast(t.mining.approvingUSDT, { icon: 'ℹ️' });
+               const tx = await usdtContract.approve(protocolAddr, ethers.MaxUint256);
+               await tx.wait();
+               toast.success(t.mining.usdtApproved);
           }
 
-          if (arcAllow < arcPart) {
-              toast(t.mining.approvingARC);
-              const tx = await arcContract.approve(protocolAddr, ethers.MaxUint256);
-              await tx.wait();
-              toast.success(t.mining.arcApproved);
+          // 2. Check ARC Balance & Allowance
+          // Calc ARC amount needed
+          const price = await protocolContract.getARCPrice();
+          if (price === 0n) {
+               toast.error(t.mining.invalidARCPrice);
+               return;
+          }
+          const arcAmount = (arcValuePart * ethers.parseEther("1")) / price;
+          
+          const arcBalance = await arcContract.balanceOf(account);
+          if (arcBalance < arcAmount) {
+               toast.error(t.mining.insufficientARC.replace('{amount}', ethers.formatEther(arcAmount)));
+               return;
           }
 
-          // Execute Reinvest
+          const arcAllow = await arcContract.allowance(account, protocolAddr);
+          if (arcAllow < arcAmount) {
+               toast(t.mining.approvingARC, { icon: 'ℹ️' });
+               const tx = await arcContract.approve(protocolAddr, ethers.MaxUint256);
+               await tx.wait();
+               toast.success(t.mining.arcApproved);
+          }
+
+          // 3. Reinvest
           const tx = await protocolContract.reinvest(selectedPlan.days);
           await tx.wait();
-
           toast.success(t.mining.reinvestSuccess);
           await checkTicketStatus();
 
       } catch (err: any) {
-          console.error(t.mining.reinvestFailed, err);
-          toast.error(`${t.mining.reinvestFailed}: ${err.reason || err.message}`);
+          console.error("Reinvest failed", err);
+          const errorMsg = err.reason || err.message || '';
+          if (errorMsg.includes("Ticket expired")) {
+               toast.error(t.mining.ticketExpiredBuy);
+          } else {
+               toast.error(`${t.mining.reinvestFailed}${errorMsg}`);
+          }
       } finally {
           setTxPending(false);
       }
-  };
-
-  const handleReinvest = async () => {
-    if (!protocolContract || !usdtContract || !arcContract) return;
-    setTxPending(true);
-    try {
-        const totalReqValue = ethers.parseEther(selectedTicket.requiredLiquidity.toString());
-        const usdtPart = totalReqValue / 2n;
-        const arcValuePart = totalReqValue / 2n;
-
-        // 1. Check USDT Balance & Allowance
-        const usdtBalance = await usdtContract.balanceOf(account);
-        if (usdtBalance < usdtPart) {
-            toast.error(`${t.mining.insufficientUSDT} (Need ${ethers.formatEther(usdtPart)})`);
-            return;
-        }
-        
-        const protocolAddr = await protocolContract.getAddress();
-        const usdtAllow = await usdtContract.allowance(account, protocolAddr);
-        if (usdtAllow < usdtPart) {
-             toast(t.mining.approvingUSDT, { icon: 'ℹ️' });
-             const tx = await usdtContract.approve(protocolAddr, ethers.MaxUint256);
-             await tx.wait();
-             toast.success(t.mining.usdtApproved);
-        }
-
-        // 2. Check ARC Balance & Allowance
-        // Calc ARC amount needed
-        const price = await protocolContract.getARCPrice();
-        if (price === 0n) {
-             toast.error(t.mining.invalidARCPrice);
-             return;
-        }
-        const arcAmount = (arcValuePart * ethers.parseEther("1")) / price;
-        
-        const arcBalance = await arcContract.balanceOf(account);
-        if (arcBalance < arcAmount) {
-             toast.error(t.mining.insufficientARC.replace('{amount}', ethers.formatEther(arcAmount)));
-             return;
-        }
-
-        const arcAllow = await arcContract.allowance(account, protocolAddr);
-        if (arcAllow < arcAmount) {
-             toast(t.mining.approvingARC, { icon: 'ℹ️' });
-             const tx = await arcContract.approve(protocolAddr, ethers.MaxUint256);
-             await tx.wait();
-             toast.success(t.mining.arcApproved);
-        }
-
-        // 3. Reinvest
-        const tx = await protocolContract.reinvest(selectedPlan.days);
-        await tx.wait();
-        toast.success(t.mining.reinvestSuccess);
-        await checkTicketStatus();
-
-    } catch (err: any) {
-        console.error("Reinvest failed", err);
-        const errorMsg = err.reason || err.message || '';
-        if (errorMsg.includes("Ticket expired")) {
-             toast.error(t.mining.ticketExpiredBuy);
-        } else {
-             toast.error(`${t.mining.reinvestFailed}${errorMsg}`);
-        }
-    } finally {
-        setTxPending(false);
-    }
   };
 
   const handleClaim = async () => {

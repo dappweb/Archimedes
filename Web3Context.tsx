@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ethers } from 'ethers';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { useEthersProvider, useEthersSigner } from './wagmi-adapters';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { CONTRACT_ADDRESSES } from './src/config';
+import { CONTRACT_ADDRESSES, CHAIN_CONFIG } from './src/config';
 
 console.log("CONTRACT_ADDRESSES in Web3Context:", CONTRACT_ADDRESSES);
 
@@ -11,7 +11,8 @@ console.log("CONTRACT_ADDRESSES in Web3Context:", CONTRACT_ADDRESSES);
 export const USDT_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
   "function allowance(address owner, address spender) external view returns (uint256)",
-  "function balanceOf(address account) external view returns (uint256)"
+  "function balanceOf(address account) external view returns (uint256)",
+  "function decimals() external view returns (uint8)"
 ];
 
 export const PROTOCOL_ABI = [
@@ -140,6 +141,16 @@ export const Web3Provider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     try {
       // 检查是否是管理员
+      // Add check for contract code
+      const contractAddress = await protocolContract.getAddress();
+      if (contractAddress === ethers.ZeroAddress) return;
+
+      const code = await provider?.getCode(contractAddress);
+      if (code === '0x') {
+          console.warn('Contract not deployed on this network');
+          return;
+      }
+
       const owner = await protocolContract.owner();
       const ownerStatus = owner.toLowerCase() === address.toLowerCase();
       setIsOwner(ownerStatus);

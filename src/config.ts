@@ -1,9 +1,9 @@
-// Contract Addresses (Sepolia Testnet)
+// Contract Addresses (BSC Mainnet)
 export const CONTRACT_ADDRESSES = {
-  USDT_TOKEN: "0x302041e0B98B3fa3E447453046656E84484ba844",
-  ARC_TOKEN: "0x83B951933323300E7Eb4ef3ce9F21c4413e4Ac3D",
-  DES_TOKEN: "0x304199e516F82BcFCC949E9b7e6dB42358A4C203",
-  PROTOCOL: "0x9aEbC85bB258f02c3C752d57118263A44f5989F0"
+  USDT_TOKEN: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  ARC_TOKEN: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  DES_TOKEN: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+  PROTOCOL: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
 };
 
 // API Configuration
@@ -13,7 +13,7 @@ export const API_CONFIG = {
 
 // Chain Configuration
 export const CHAIN_CONFIG = {
-  ID: 11155111, // Sepolia
-  NAME: "Sepolia",
-  RPC_URL: "https://1rpc.io/sepolia" // Public RPC
+  ID: 31337, // Hardhat Local
+  NAME: "Hardhat Local",
+  RPC_URL: "http://127.0.0.1:8545/"
 };

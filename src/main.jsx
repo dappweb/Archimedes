@@ -8,23 +8,57 @@ import {
   getDefaultConfig,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
-import { WagmiProvider } from 'wagmi';
+import { 
+  injectedWallet,
+  metaMaskWallet,
+  coinbaseWallet,
+  walletConnectWallet,
+  trustWallet,
+} from '@rainbow-me/rainbowkit/wallets';
+import { WagmiProvider, createConfig, http } from 'wagmi';
 import {
   mainnet,
   polygon,
   optimism,
   arbitrum,
   base,
+  sepolia,
+  bsc,
+  hardhat,
 } from 'wagmi/chains';
 import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
+import { Web3Provider } from '../Web3Context';
+import { LanguageProvider } from '../LanguageContext';
 
-const config = getDefaultConfig({
+const config = createConfig({
   appName: 'Archimedes',
   projectId: 'YOUR_PROJECT_ID',
-  chains: [mainnet, polygon, optimism, arbitrum, base],
+  chains: [hardhat, bsc, mainnet, polygon, optimism, arbitrum, base, sepolia],
+  transports: {
+    [hardhat.id]: http('http://127.0.0.1:8545/'),
+    [bsc.id]: http('https://bsc-dataseed.binance.org/'),
+    [mainnet.id]: http('https://eth.llamarpc.com'),
+    [polygon.id]: http('https://polygon-rpc.com'),
+    [optimism.id]: http('https://mainnet.optimism.io'),
+    [arbitrum.id]: http('https://arb1.arbitrum.io/rpc'),
+    [base.id]: http('https://mainnet.base.org'),
+    [sepolia.id]: http('https://1rpc.io/sepolia'),
+  },
+  wallets: [
+    {
+      groupName: 'Recommended',
+      wallets: [
+        injectedWallet,
+        metaMaskWallet,
+        trustWallet,
+        walletConnectWallet,
+        coinbaseWallet,
+      ],
+    },
+  ],
 });
 
 const queryClient = new QueryClient();
