@@ -36,10 +36,10 @@ import { LanguageProvider } from '../LanguageContext';
 const config = createConfig({
   appName: 'Archimedes',
   projectId: 'YOUR_PROJECT_ID',
-  chains: [hardhat, bsc, mainnet, polygon, optimism, arbitrum, base, sepolia],
+  chains: [bsc, mainnet, polygon, optimism, arbitrum, base, sepolia, hardhat],
   transports: {
-    [hardhat.id]: http('http://127.0.0.1:8545/'),
     [bsc.id]: http('https://bsc-dataseed.binance.org/'),
+    [hardhat.id]: http('http://127.0.0.1:8545/'),
     [mainnet.id]: http('https://eth.llamarpc.com'),
     [polygon.id]: http('https://polygon-rpc.com'),
     [optimism.id]: http('https://mainnet.optimism.io'),
